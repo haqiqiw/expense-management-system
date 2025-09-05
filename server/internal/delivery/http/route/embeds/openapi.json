@@ -23,16 +23,20 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john@mail.com"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "John"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johnsecret"
                   },
                   "role": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "manager"
                   }
                 },
                 "required": ["email", "name", "password", "role"]
@@ -65,7 +69,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ResponseError"
                 }
               }
             }
@@ -107,7 +111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ResponseError"
                 }
               }
             }
@@ -127,10 +131,12 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john@mail.com"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johnsecret"
                   }
                 },
                 "required": ["email", "password"]
@@ -163,7 +169,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ResponseError"
                 }
               }
             }
@@ -186,7 +192,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
+                  "$ref": "#/components/schemas/ResponseMessage"
                 }
               }
             }
@@ -196,7 +202,333 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "$ref": "#/components/schemas/ResponseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expenses": {
+      "post": {
+        "tags": ["Expense API"],
+        "description": "Create expense",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount_idr": {
+                    "type": "integer",
+                    "example": 10000
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Office supplies"
+                  },
+                  "receipt_url": {
+                    "type": "string",
+                    "example": "https://example.com/receipt.jpg"
+                  }
+                },
+                "required": ["amount_idr", "description"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create expense",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ExpenseCreate"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/Meta"
+                    }
+                  },
+                  "required": ["data", "meta"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Expense API"],
+        "description": "Get list of expenses",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "description": "The \"approval_queue\" view, only available for user with manager role",
+            "schema": {
+              "type": "string",
+              "enum": ["personal", "approval_queue"],
+              "default": "personal"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "The status of expense, only available for personal view",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ExpenseStatusEnum"
+            }
+          },
+          {
+            "name": "auto_approved",
+            "in": "query",
+            "description": "Filter expenses that don't require approval (automatic), only available for personal view",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get list of expenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ExpenseList"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MetaWithPage"
+                    }
+                  },
+                  "required": ["data", "meta"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expenses/{id}": {
+      "get": {
+        "tags": ["Expense API"],
+        "description": "Get expense detail by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of expense",
+            "schema": {
+              "type": "string",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get expense detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ExpenseDetail"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/Meta"
+                    }
+                  },
+                  "required": ["data", "meta"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expenses/{id}/approve": {
+      "put": {
+        "tags": ["Expense API"],
+        "description": "Approve expense by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of expense",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Approved from my side",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success approve expense",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseMessage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expenses/{id}/reject": {
+      "put": {
+        "tags": ["Expense API"],
+        "description": "Reject expense by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of expense",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Rejected due to unclear reason",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success reject expense",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseMessage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseError"
                 }
               }
             }
@@ -220,7 +552,7 @@
           },
           "name": {
             "type": "string",
-            "example": "John Doe"
+            "example": "John"
           },
           "role": {
             "type": "string",
@@ -232,6 +564,232 @@
           }
         },
         "required": ["id", "email", "name", "role", "created_at"]
+      },
+      "UserSimple": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "example": "john@mail.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "John"
+          }
+        },
+        "required": ["id", "email", "name"]
+      },
+      "ExpenseStatusEnum": {
+        "type": "string",
+        "enum": ["awaiting_approval", "approved", "rejected", "completed"]
+      },
+      "ExpenseCreate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "amount_idr": {
+            "type": "integer",
+            "example": 10000
+          },
+          "description": {
+            "type": "string",
+            "example": "Office supplies"
+          },
+          "receipt_url": {
+            "type": "string",
+            "example": "https://example.com/receipt.jpg"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ExpenseStatusEnum"
+          },
+          "requires_approval": {
+            "type": "boolean",
+            "example": false
+          },
+          "auto_approved": {
+            "type": "boolean",
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "amount_idr",
+          "description",
+          "receipt_url",
+          "status",
+          "requires_approval",
+          "auto_approved",
+          "created_at"
+        ]
+      },
+      "ExpenseList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "amount_idr": {
+            "type": "integer",
+            "example": 10000
+          },
+          "description": {
+            "type": "string",
+            "example": "Office supplies"
+          },
+          "receipt_url": {
+            "type": "string",
+            "example": "https://example.com/receipt.jpg"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ExpenseStatusEnum"
+          },
+          "requires_approval": {
+            "type": "boolean",
+            "example": false
+          },
+          "auto_approved": {
+            "type": "boolean",
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSimple"
+          }
+        },
+        "required": [
+          "id",
+          "amount_idr",
+          "description",
+          "receipt_url",
+          "status",
+          "requires_approval",
+          "auto_approved",
+          "created_at",
+          "user"
+        ]
+      },
+      "ExpenseDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "amount_idr": {
+            "type": "integer",
+            "example": 10000
+          },
+          "description": {
+            "type": "string",
+            "example": "Office supplies"
+          },
+          "receipt_url": {
+            "type": "string",
+            "example": "https://www.image.com/abc",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ExpenseStatusEnum"
+          },
+          "requires_approval": {
+            "type": "boolean",
+            "example": false
+          },
+          "auto_approved": {
+            "type": "boolean",
+            "example": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSimple"
+          },
+          "approval": {
+            "$ref": "#/components/schemas/ApprovalDetail",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "amount_idr",
+          "description",
+          "receipt_url",
+          "status",
+          "requires_approval",
+          "auto_approved",
+          "created_at",
+          "processed_at",
+          "user",
+          "approval"
+        ]
+      },
+      "ApprovalStatusEnum": {
+        "type": "string",
+        "enum": ["approve", "reject"]
+      },
+      "ApprovalDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "approver_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "approver_email": {
+            "type": "string",
+            "example": "john@mail.com"
+          },
+          "approver_name": {
+            "type": "string",
+            "example": "John"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApprovalStatusEnum"
+          },
+          "notes": {
+            "type": "string",
+            "example": "Approved from my side",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "approver_id",
+          "approver_email",
+          "approver_name",
+          "status",
+          "notes",
+          "created_at"
+        ]
       },
       "Token": {
         "type": "object",
@@ -289,7 +847,7 @@
         },
         "required": ["code", "message"]
       },
-      "ErrorResponse": {
+      "ResponseError": {
         "type": "object",
         "properties": {
           "errors": {
@@ -304,7 +862,7 @@
         },
         "required": ["errors", "meta"]
       },
-      "MessageResponse": {
+      "ResponseMessage": {
         "type": "object",
         "properties": {
           "message": {

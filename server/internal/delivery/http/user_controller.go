@@ -13,16 +13,16 @@ import (
 )
 
 type UserController struct {
-	Log         *zap.Logger
-	Validate    *validator.Validate
-	UserUsecase usecase.UserUsecase
+	log         *zap.Logger
+	validate    *validator.Validate
+	userUsecase usecase.UserUsecase
 }
 
 func NewUserController(log *zap.Logger, validate *validator.Validate, userUsecase usecase.UserUsecase) *UserController {
 	return &UserController{
-		Log:         log,
-		Validate:    validate,
-		UserUsecase: userUsecase,
+		log:         log,
+		validate:    validate,
+		userUsecase: userUsecase,
 	}
 }
 
@@ -30,21 +30,21 @@ func (c *UserController) Register(ctx *gin.Context) {
 	request := new(model.CreateUserRequest)
 	err := ctx.ShouldBindJSON(request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to parse request body", err)
+		LogWarn(ctx, c.log, "failed to parse request body", err)
 		ctx.Error(model.ErrBadRequest)
 		return
 	}
 
-	err = c.Validate.Struct(request)
+	err = c.validate.Struct(request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to validate request body", err)
+		LogWarn(ctx, c.log, "failed to validate request body", err)
 		ctx.Error(model.ErrBadRequest)
 		return
 	}
 
-	res, err := c.UserUsecase.Create(ctx.Request.Context(), request)
+	res, err := c.userUsecase.Create(ctx.Request.Context(), request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to register user", err)
+		LogWarn(ctx, c.log, "failed to register user", err)
 		ctx.Error(err)
 		return
 	}
@@ -58,23 +58,23 @@ func (c *UserController) Register(ctx *gin.Context) {
 func (c *UserController) Me(ctx *gin.Context) {
 	claims, err := middleware.GetJWTClaims(ctx)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to get jwt claims", err)
+		LogWarn(ctx, c.log, "failed to get jwt claims", err)
 		ctx.Error(model.ErrUnauthorized)
 		return
 	}
 
 	userID, err := strconv.ParseUint(claims.UserID, 10, 64)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to convert id", err)
+		LogWarn(ctx, c.log, "failed to convert user id", err)
 		ctx.Error(model.ErrBadRequest)
 		return
 	}
 
-	res, err := c.UserUsecase.FindByID(ctx.Request.Context(), &model.GetUserRequest{
+	res, err := c.userUsecase.FindByID(ctx.Request.Context(), &model.GetUserRequest{
 		ID: userID,
 	})
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to get user", err)
+		LogWarn(ctx, c.log, "failed to get user", err)
 		ctx.Error(err)
 		return
 	}

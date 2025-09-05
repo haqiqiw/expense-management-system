@@ -17,7 +17,7 @@ func TestCustomError_Error(t *testing.T) {
 		{
 			name:      "single error",
 			customErr: model.ErrEmailAlreadyExist,
-			wantMsg:   "email already exist",
+			wantMsg:   "Email already exist",
 		},
 		{
 			name: "multiple errors",
@@ -29,7 +29,7 @@ func TestCustomError_Error(t *testing.T) {
 				})
 				return err
 			}(),
-			wantMsg: "invalid password",
+			wantMsg: "Invalid password",
 		},
 		{
 			name: "empty errors",

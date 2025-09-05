@@ -43,7 +43,7 @@ func (s *AuthMiddlewareSuite) TestAuthMiddleware_Handler() {
 			authToken:  "",
 			mockFunc:   func(rc *mocks.RedisClient, j *mocks.JWTToken) {},
 			wantStatus: http.StatusUnauthorized,
-			wantRes:    `{"errors":[{"code":104,"message":"missing or invalid auth header"}],"meta":{"http_status":401}}`,
+			wantRes:    `{"errors":[{"code":104,"message":"Missing or invalid auth header"}],"meta":{"http_status":401}}`,
 		},
 		{
 			name:      "invalid auth token",
@@ -53,7 +53,7 @@ func (s *AuthMiddlewareSuite) TestAuthMiddleware_Handler() {
 					Return(nil, errors.New("something error"))
 			},
 			wantStatus: http.StatusUnauthorized,
-			wantRes:    `{"errors":[{"code":105,"message":"invalid auth token"}],"meta":{"http_status":401}}`,
+			wantRes:    `{"errors":[{"code":105,"message":"Invalid auth token"}],"meta":{"http_status":401}}`,
 		},
 		{
 			name:      "error on get revoked token cache",
@@ -71,7 +71,7 @@ func (s *AuthMiddlewareSuite) TestAuthMiddleware_Handler() {
 				rc.On("Exists", mock.Anything, "revoke-jwt-token:zxc-123").Return(existsCmd)
 			},
 			wantStatus: http.StatusUnauthorized,
-			wantRes:    `{"errors":[{"code":105,"message":"invalid auth token"}],"meta":{"http_status":401}}`,
+			wantRes:    `{"errors":[{"code":105,"message":"Invalid auth token"}],"meta":{"http_status":401}}`,
 		},
 		{
 			name:      "revoked auth token",
@@ -89,7 +89,7 @@ func (s *AuthMiddlewareSuite) TestAuthMiddleware_Handler() {
 				rc.On("Exists", mock.Anything, "revoke-jwt-token:zxc-123").Return(existsCmd)
 			},
 			wantStatus: http.StatusUnauthorized,
-			wantRes:    `{"errors":[{"code":106,"message":"token revoked"}],"meta":{"http_status":401}}`,
+			wantRes:    `{"errors":[{"code":106,"message":"Token revoked"}],"meta":{"http_status":401}}`,
 		},
 		{
 			name:      "success",

@@ -22,7 +22,10 @@ func NewUserRepository(db db.PgxIface) *UserRepository {
 
 func (r *UserRepository) Create(ctx context.Context, user *entity.User) error {
 	now := time.Now()
-	query := `INSERT INTO users (email, name, password_hash, role, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	query := `
+		INSERT INTO users (email, name, password_hash, role, created_at)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id`
 
 	err := r.db.QueryRow(ctx, query, user.Email, user.Name, user.PasswordHash, user.Role, now).Scan(&user.ID)
 	if err != nil {

@@ -12,17 +12,17 @@ import (
 )
 
 type AuthController struct {
-	Log         *zap.Logger
-	Validate    *validator.Validate
-	AuthUsecase usecase.AuthUsecase
+	log         *zap.Logger
+	validate    *validator.Validate
+	authUsecase usecase.AuthUsecase
 }
 
 func NewAuthController(log *zap.Logger, validate *validator.Validate,
 	authUsecase usecase.AuthUsecase) *AuthController {
 	return &AuthController{
-		Log:         log,
-		Validate:    validate,
-		AuthUsecase: authUsecase,
+		log:         log,
+		validate:    validate,
+		authUsecase: authUsecase,
 	}
 }
 
@@ -30,21 +30,21 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	request := new(model.LoginRequest)
 	err := ctx.ShouldBindJSON(request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to parse request body", err)
+		LogWarn(ctx, c.log, "failed to parse request body", err)
 		ctx.Error(model.ErrBadRequest)
 		return
 	}
 
-	err = c.Validate.Struct(request)
+	err = c.validate.Struct(request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to validate request body", err)
+		LogWarn(ctx, c.log, "failed to validate request body", err)
 		ctx.Error(model.ErrBadRequest)
 		return
 	}
 
-	res, err := c.AuthUsecase.Login(ctx.Request.Context(), request)
+	res, err := c.authUsecase.Login(ctx.Request.Context(), request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to login", err)
+		LogWarn(ctx, c.log, "failed to login", err)
 		ctx.Error(err)
 		return
 	}
@@ -58,7 +58,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 func (c *AuthController) Logout(ctx *gin.Context) {
 	claims, err := middleware.GetJWTClaims(ctx)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to get jwt claims", err)
+		LogWarn(ctx, c.log, "failed to get jwt claims", err)
 		ctx.Error(model.ErrUnauthorized)
 		return
 	}
@@ -66,9 +66,9 @@ func (c *AuthController) Logout(ctx *gin.Context) {
 	request := &model.LogoutRequest{
 		Claims: claims,
 	}
-	err = c.AuthUsecase.Logout(ctx.Request.Context(), request)
+	err = c.authUsecase.Logout(ctx.Request.Context(), request)
 	if err != nil {
-		LogWarn(ctx, c.Log, "failed to logout", err)
+		LogWarn(ctx, c.log, "failed to logout", err)
 		ctx.Error(err)
 		return
 	}

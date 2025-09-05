@@ -44,7 +44,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			body:       nil,
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"bad request"}],"meta":{"http_status":400}}`,
+			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "invalid body",
@@ -54,7 +54,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			},
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"bad request"}],"meta":{"http_status":400}}`,
+			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on validate body",
@@ -64,7 +64,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			},
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"bad request"}],"meta":{"http_status":400}}`,
+			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "custom error on login",
@@ -77,7 +77,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 					Return(nil, model.ErrUserNotFound)
 			},
 			wantStatus: http.StatusNotFound,
-			wantRes:    `{"errors":[{"code":1002,"message":"user not found"}],"meta":{"http_status":404}}`,
+			wantRes:    `{"errors":[{"code":1001,"message":"User not found"}],"meta":{"http_status":404}}`,
 		},
 		{
 			name: "unexpected error on login",
@@ -90,7 +90,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 					Return(nil, errors.New("something error"))
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantRes:    `{"errors":[{"code":100,"message":"internal server error"}],"meta":{"http_status":500}}`,
+			wantRes:    `{"errors":[{"code":100,"message":"Internal server error"}],"meta":{"http_status":500}}`,
 		},
 		{
 			name: "success",
@@ -145,7 +145,7 @@ func (s *AuthControllerSuite) TestAuthController_Logout() {
 					Return(errors.New("something error"))
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantRes:    `{"errors":[{"code":100,"message":"internal server error"}],"meta":{"http_status":500}}`,
+			wantRes:    `{"errors":[{"code":100,"message":"Internal server error"}],"meta":{"http_status":500}}`,
 		},
 		{
 			name: "success",

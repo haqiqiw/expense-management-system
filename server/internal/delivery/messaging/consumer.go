@@ -73,7 +73,7 @@ func (c *consumer) Consume(ctx context.Context) error {
 
 	err := c.Consumer.Subscribe(c.Config.Topic, nil)
 	if err != nil {
-		return fmt.Errorf("failed to subscribe to topic %s: %w", c.Config.Topic, err)
+		return fmt.Errorf("failed to subscribe to topic %s = %w", c.Config.Topic, err)
 	}
 
 	defer func() {
@@ -178,5 +178,5 @@ func (c *consumer) executeWithRetry(ctx context.Context, message *kafka.Message)
 		}
 	}
 
-	return fmt.Errorf("handler failed after %d attempts, last error: %w", c.Config.MaxRetries, lastErr)
+	return fmt.Errorf("handler failed after %d attempts, last error = %w", c.Config.MaxRetries, lastErr)
 }

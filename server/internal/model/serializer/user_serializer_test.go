@@ -46,3 +46,33 @@ func TestUserSerializer_UserToResponse(t *testing.T) {
 		})
 	}
 }
+
+func TestUserSerializer_UserSimpleToResponse(t *testing.T) {
+	tests := []struct {
+		name    string
+		param   *entity.UserSimple
+		wantRes *model.UserSimpleResponse
+	}{
+		{
+			name: "success",
+			param: &entity.UserSimple{
+				ID:    1,
+				Email: "john@mail.com",
+				Name:  "John Doe",
+			},
+			wantRes: &model.UserSimpleResponse{
+				ID:    1,
+				Email: "john@mail.com",
+				Name:  "John Doe",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := serializer.UserSimpleToResponse(tt.param)
+
+			assert.Equal(t, tt.wantRes, res)
+		})
+	}
+}

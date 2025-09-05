@@ -49,7 +49,7 @@ func (s *UserUsecaseSuite) TestUserUsecase_Create() {
 					Return(0, errors.New("something error"))
 			},
 			wantUser:   nil,
-			wantErrMsg: "failed to count by email: something error",
+			wantErrMsg: "failed to count by email (john@mail.com) = something error",
 		},
 		{
 			name: "error on duplicate email",
@@ -64,7 +64,22 @@ func (s *UserUsecaseSuite) TestUserUsecase_Create() {
 					Return(1, nil)
 			},
 			wantUser:   nil,
-			wantErrMsg: "email already exist",
+			wantErrMsg: "Email already exist",
+		},
+		{
+			name: "error on parse role",
+			request: &model.CreateUserRequest{
+				Email:    "john@mail.com",
+				Name:     "John Doe",
+				Password: "password",
+				Role:     "unknown",
+			},
+			mockFunc: func(r *mocks.UserRepository) {
+				r.On("CountByEmail", mock.Anything, "john@mail.com").
+					Return(0, nil)
+			},
+			wantUser:   nil,
+			wantErrMsg: "failed to parse user role for email (john@mail.com) = invalid user role = unknown",
 		},
 		{
 			name: "error on create",
@@ -81,7 +96,7 @@ func (s *UserUsecaseSuite) TestUserUsecase_Create() {
 					Return(errors.New("something error"))
 			},
 			wantUser:   nil,
-			wantErrMsg: "failed to create user: something error",
+			wantErrMsg: "failed to create user for email (john@mail.com) = something error",
 		},
 		{
 			name: "success",
@@ -145,7 +160,19 @@ func (s *UserUsecaseSuite) TestUserUsecase_FindByID() {
 					Return(nil, errors.New("something error"))
 			},
 			wantUser:   nil,
-			wantErrMsg: "failed to find user by id: something error",
+			wantErrMsg: "failed to find user by id (1) = something error",
+		},
+		{
+			name: "not found",
+			request: &model.GetUserRequest{
+				ID: 1,
+			},
+			mockFunc: func(r *mocks.UserRepository) {
+				r.On("FindByID", mock.Anything, uint64(1)).
+					Return(nil, nil)
+			},
+			wantUser:   nil,
+			wantErrMsg: "User not found",
 		},
 		{
 			name: "success",
@@ -167,7 +194,7 @@ func (s *UserUsecaseSuite) TestUserUsecase_FindByID() {
 				Email:     "john@mail.com",
 				Name:      "John Doe",
 				Role:      "manager",
-				CreatedAt: now.Format(time.RFC3339),
+				CreatedAt: now.UTC().Format(time.RFC3339),
 			},
 			wantErrMsg: "",
 		},

@@ -33,16 +33,24 @@ type Env struct {
 	JWTSecretKey     string
 	JWTExpirationDay int
 
-	KafkaBrokerHost      string
-	KafkaConsumerGroup   string
-	KafkaAutoOffsetReset string
+	KafkaBrokerHost           string
+	KafkaConsumerGroup        string
+	KafkaAutoOffsetReset      string
+	KafkaTopicExpenseApproved string
+	KafkaMaxRetries           int
+	KafkaBackoffDuration      int
+	KafkaMaxExecuteDuration   int
+
+	PaymentPartnerHost    string
+	PaymentPartnerTimeout int
+	PaymentLockDuration   int
 }
 
 func NewEnv() (*Env, error) {
 	if os.Getenv("APP_ENV") != "production" {
 		err := godotenv.Load()
 		if err != nil {
-			return nil, fmt.Errorf("failed to load env: %w", err)
+			return nil, fmt.Errorf("failed to load env = %w", err)
 		}
 	}
 
@@ -71,9 +79,18 @@ func NewEnv() (*Env, error) {
 		JWTSecretKey:     getEnvString("JWT_SECRET_KEY", ""),
 		JWTExpirationDay: getEnvInt("JWT_EXPIRATION_DAY", 1),
 
-		KafkaBrokerHost:      getEnvString("KAFKA_BROKER_HOST", "127.0.0.1:9092"),
-		KafkaConsumerGroup:   getEnvString("KAFKA_CONSUMER_GROUP", "expense-management"),
-		KafkaAutoOffsetReset: getEnvString("KAFKA_AUTO_OFFSET_RESET", "latest"),
+		KafkaBrokerHost:           getEnvString("KAFKA_BROKER_HOST", "127.0.0.1:9092"),
+		KafkaConsumerGroup:        getEnvString("KAFKA_CONSUMER_GROUP", "expense-management"),
+		KafkaAutoOffsetReset:      getEnvString("KAFKA_AUTO_OFFSET_RESET", "latest"),
+		KafkaTopicExpenseApproved: getEnvString("KAFKA_TOPIC_EXPENSE_APPROVED", "expense-approved"),
+
+		KafkaMaxRetries:         getEnvInt("KAFKA_MAX_RETRIES", 3),
+		KafkaBackoffDuration:    getEnvInt("KAFKA_BACKOFF_DURATION", 1),
+		KafkaMaxExecuteDuration: getEnvInt("KAFKA_MAX_EXECUTE_DURATION", 10),
+
+		PaymentPartnerHost:    getEnvString("PAYMENT_PARTNER_HOST", "http://127.0.0.1:9999"),
+		PaymentPartnerTimeout: getEnvInt("PAYMENT_PARTNER_TIMEOUT", 3),
+		PaymentLockDuration:   getEnvInt("PAYMENT_LOCK_DURATION", 30),
 	}
 
 	return cfg, nil

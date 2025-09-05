@@ -2,7 +2,6 @@ package auth_test
 
 import (
 	"expense-management-system/internal/auth"
-	"log"
 	"testing"
 	"time"
 
@@ -86,8 +85,6 @@ func TestJWTToken_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			claims, err := jwt.Parse(tt.token)
-			log.Println(claims)
-			log.Println(err)
 
 			if tt.wantErrMsg != "" {
 				assert.Nil(t, claims)

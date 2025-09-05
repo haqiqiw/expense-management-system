@@ -16,10 +16,12 @@ var swaggerJSON []byte
 var swaggerUI embed.FS
 
 type RouteConfig struct {
-	App            *gin.Engine
-	AuthMiddlware  gin.HandlerFunc
-	AuthController *internalHttp.AuthController
-	UserController *internalHttp.UserController
+	App                *gin.Engine
+	AuthMiddlware      gin.HandlerFunc
+	AuthController     *internalHttp.AuthController
+	UserController     *internalHttp.UserController
+	ExpenseController  *internalHttp.ExpenseController
+	ApprovalController *internalHttp.ApprovalController
 }
 
 func (c *RouteConfig) Setup() {
@@ -41,6 +43,12 @@ func (c *RouteConfig) Setup() {
 	// with auth
 	api.POST("/logout", c.AuthMiddlware, c.AuthController.Logout)
 	api.GET("/users/me", c.AuthMiddlware, c.UserController.Me)
+
+	api.POST("/expenses", c.AuthMiddlware, c.ExpenseController.Create)
+	api.GET("/expenses", c.AuthMiddlware, c.ExpenseController.List)
+	api.GET("/expenses/:id", c.AuthMiddlware, c.ExpenseController.Get)
+	api.PUT("/expenses/:id/approve", c.AuthMiddlware, c.ApprovalController.Approve)
+	api.PUT("/expenses/:id/reject", c.AuthMiddlware, c.ApprovalController.Reject)
 }
 
 func SetupSwagger(app *gin.Engine) {

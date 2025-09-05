@@ -18,3 +18,9 @@ type UserResponse struct {
 	Role      string `json:"role"`
 	CreatedAt string `json:"created_at"`
 }
+
+type UserSimpleResponse struct {
+	ID    uint64 `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}

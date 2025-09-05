@@ -64,7 +64,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase_Login() {
 					Return(nil, errors.New("something error"))
 			},
 			wantRes:    nil,
-			wantErrMsg: "failed to find user by email: something error",
+			wantErrMsg: "failed to find user by email (john@mail.com) = something error",
 		},
 		{
 			name: "error user not found",
@@ -82,7 +82,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase_Login() {
 					Return(nil, nil)
 			},
 			wantRes:    nil,
-			wantErrMsg: "user not found",
+			wantErrMsg: "User not found",
 		},
 		{
 			name: "error invalid password",
@@ -106,7 +106,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase_Login() {
 				}, nil)
 			},
 			wantRes:    nil,
-			wantErrMsg: "invalid password",
+			wantErrMsg: "Invalid password",
 		},
 		{
 			name: "error on create jwt token",
@@ -131,7 +131,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase_Login() {
 				jwt.On("Create", "1", "manager").Return("", errors.New("something error"))
 			},
 			wantRes:    nil,
-			wantErrMsg: "failed to create access token: something error",
+			wantErrMsg: "failed to create access token for id (1) = something error",
 		},
 		{
 			name: "success",
@@ -210,7 +210,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase_Logout() {
 				rc.On("SetEx", mock.Anything, "revoke-jwt-token:asd-789", "true", mock.Anything).
 					Return(setCmd)
 			},
-			wantErrMsg: "failed to set revoke token: something error",
+			wantErrMsg: "failed to set revoke token for id (1) = something error",
 		},
 		{
 			name: "success",

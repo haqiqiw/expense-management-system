@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
 
@@ -37,6 +38,11 @@ func main() {
 		logger.Fatal(fmt.Sprintf("failed to initialize database: %+v", err))
 	}
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%s", env.RedisHost, env.RedistPort),
+		DB:   env.RedistDB,
+	})
+
 	producer, err := config.NewKafkaProducer(env, logger)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("failed to initialize producer: %+v", err))
@@ -47,13 +53,14 @@ func main() {
 	app := config.NewGin(logger)
 
 	config.NewApi(&config.ApiConfig{
-		DB:       database,
-		TX:       tx,
-		App:      app,
-		Log:      logger,
-		Validate: validate,
-		Config:   env,
-		Producer: producer,
+		DB:          database,
+		TX:          tx,
+		App:         app,
+		Log:         logger,
+		Validate:    validate,
+		Config:      env,
+		Producer:    producer,
+		RedisClient: redisClient,
 	})
 
 	serverAddr := fmt.Sprintf(":%d", env.AppPort)

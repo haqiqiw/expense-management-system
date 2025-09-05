@@ -11,4 +11,6 @@ import (
 type RedisClient interface {
 	Exists(ctx context.Context, keys ...string) *redis.IntCmd
 	SetEx(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
+	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
 }

@@ -11,7 +11,15 @@ func UserToResponse(u *entity.User) *model.UserResponse {
 		ID:        u.ID,
 		Email:     u.Email,
 		Name:      u.Name,
-		Role:      u.Role,
+		Role:      string(u.Role),
 		CreatedAt: u.CreatedAt.UTC().Format(time.RFC3339),
+	}
+}
+
+func UserSimpleToResponse(u *entity.UserSimple) *model.UserSimpleResponse {
+	return &model.UserSimpleResponse{
+		ID:    u.ID,
+		Email: u.Email,
+		Name:  u.Name,
 	}
 }

@@ -35,7 +35,7 @@ func NewDatabase(ctx context.Context, env *Env) (*pgxpool.Pool, error) {
 
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse db config: %w", err)
+		return nil, fmt.Errorf("failed to parse db config = %w", err)
 	}
 
 	config.MaxConns = int32(env.DBMaxConn)
@@ -44,12 +44,12 @@ func NewDatabase(ctx context.Context, env *Env) (*pgxpool.Pool, error) {
 
 	dbpool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create db connection pool: %w", err)
+		return nil, fmt.Errorf("failed to create db connection pool = %w", err)
 	}
 
 	err = dbpool.Ping(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to ping db: %w", err)
+		return nil, fmt.Errorf("failed to ping db = %w", err)
 	}
 
 	return dbpool, nil

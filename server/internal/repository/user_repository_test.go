@@ -46,14 +46,14 @@ func (s *UserRepositorySuite) TestUserRepository_Create() {
 				m.ExpectQuery(regexp.QuoteMeta(
 					`INSERT INTO users (email, name, password_hash, role, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 				)).
-					WithArgs("john@mail.com", "John Doe", "password", "manager", pgxmock.AnyArg()).
+					WithArgs("john@mail.com", "John Doe", "password", entity.UserRoleManager, pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows([]string{"id"}).AddRow(uint64(1)))
 			},
 			param: &entity.User{
 				Email:        "john@mail.com",
 				Name:         "John Doe",
 				PasswordHash: "password",
-				Role:         "manager",
+				Role:         entity.UserRoleManager,
 			},
 			wantErr: nil,
 		},
@@ -63,14 +63,14 @@ func (s *UserRepositorySuite) TestUserRepository_Create() {
 				m.ExpectQuery(regexp.QuoteMeta(
 					`INSERT INTO users (email, name, password_hash, role, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 				)).
-					WithArgs("john@mail.com", "John Doe", "password", "manager", pgxmock.AnyArg()).
+					WithArgs("john@mail.com", "John Doe", "password", entity.UserRoleManager, pgxmock.AnyArg()).
 					WillReturnError(errors.New("something error"))
 			},
 			param: &entity.User{
 				Email:        "john@mail.com",
 				Name:         "John Doe",
 				PasswordHash: "password",
-				Role:         "manager",
+				Role:         entity.UserRoleManager,
 			},
 			wantErr: errors.New("something error"),
 		},
@@ -98,7 +98,7 @@ func (s *UserRepositorySuite) TestUserRepository_FindByID() {
 			name: "success",
 			mockFunc: func(m pgxmock.PgxPoolIface) {
 				rows := pgxmock.NewRows([]string{"id", "email", "name", "password_hash", "role", "created_at"}).
-					AddRow(uint64(1), "john@mail.com", "John Doe", "password", "manager", s.now)
+					AddRow(uint64(1), "john@mail.com", "John Doe", "password", entity.UserRoleManager, s.now)
 				m.ExpectQuery(regexp.QuoteMeta(
 					`SELECT id, email, name, password_hash, role, created_at FROM users WHERE id = $1 LIMIT 1`,
 				)).
@@ -111,7 +111,7 @@ func (s *UserRepositorySuite) TestUserRepository_FindByID() {
 				Email:        "john@mail.com",
 				Name:         "John Doe",
 				PasswordHash: "password",
-				Role:         "manager",
+				Role:         entity.UserRoleManager,
 				CreatedAt:    s.now,
 			},
 			wantErr: nil,
@@ -167,7 +167,7 @@ func (s *UserRepositorySuite) TestUserRepository_FindByEmail() {
 			name: "success",
 			mockFunc: func(m pgxmock.PgxPoolIface) {
 				rows := pgxmock.NewRows([]string{"id", "email", "name", "password_hash", "role", "created_at"}).
-					AddRow(uint64(1), "john@mail.com", "John Doe", "password", "manager", s.now)
+					AddRow(uint64(1), "john@mail.com", "John Doe", "password", entity.UserRoleManager, s.now)
 				m.ExpectQuery(regexp.QuoteMeta(
 					`SELECT id, email, name, password_hash, role, created_at FROM users WHERE email = $1 LIMIT 1`,
 				)).
@@ -180,7 +180,7 @@ func (s *UserRepositorySuite) TestUserRepository_FindByEmail() {
 				Email:        "john@mail.com",
 				Name:         "John Doe",
 				PasswordHash: "password",
-				Role:         "manager",
+				Role:         entity.UserRoleManager,
 				CreatedAt:    s.now,
 			},
 			wantErr: nil,

@@ -45,7 +45,7 @@ func (s *UserControllerSuite) TestUserController_Create() {
 			body:       nil,
 			mockFunc:   func(a *mocks.UserUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"bad request"}],"meta":{"http_status":400}}`,
+			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on validate body",
@@ -57,7 +57,7 @@ func (s *UserControllerSuite) TestUserController_Create() {
 			},
 			mockFunc:   func(a *mocks.UserUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"bad request"}],"meta":{"http_status":400}}`,
+			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on create",
@@ -72,7 +72,7 @@ func (s *UserControllerSuite) TestUserController_Create() {
 					Return(nil, errors.New("something error"))
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantRes:    `{"errors":[{"code":100,"message":"internal server error"}],"meta":{"http_status":500}}`,
+			wantRes:    `{"errors":[{"code":100,"message":"Internal server error"}],"meta":{"http_status":500}}`,
 		},
 		{
 			name: "success",
@@ -135,7 +135,7 @@ func (s *UserControllerSuite) TestUserController_Get() {
 					Return(nil, errors.New("something error"))
 			},
 			wantStatus: http.StatusInternalServerError,
-			wantRes:    `{"errors":[{"code":100,"message":"internal server error"}],"meta":{"http_status":500}}`,
+			wantRes:    `{"errors":[{"code":100,"message":"Internal server error"}],"meta":{"http_status":500}}`,
 		},
 		{
 			name: "success",

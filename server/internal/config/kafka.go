@@ -14,7 +14,7 @@ func NewKafkaProducer(env *Env, logger *zap.Logger) (*kafka.Producer, error) {
 
 	producer, err := kafka.NewProducer(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create kafka producer: %w", err)
+		return nil, fmt.Errorf("failed to create kafka producer = %w", err)
 	}
 
 	return producer, nil
@@ -29,7 +29,7 @@ func NewKafkaConsumer(env *Env, logger *zap.Logger) (*kafka.Consumer, error) {
 
 	consumer, err := kafka.NewConsumer(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create kafka consumer: %w", err)
+		return nil, fmt.Errorf("failed to create kafka consumer = %w", err)
 	}
 
 	return consumer, nil

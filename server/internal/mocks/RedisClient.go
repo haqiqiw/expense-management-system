@@ -16,6 +16,33 @@ type RedisClient struct {
 	mock.Mock
 }
 
+// Del provides a mock function with given fields: ctx, keys
+func (_m *RedisClient) Del(ctx context.Context, keys ...string) *redis.IntCmd {
+	_va := make([]interface{}, len(keys))
+	for _i := range keys {
+		_va[_i] = keys[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Del")
+	}
+
+	var r0 *redis.IntCmd
+	if rf, ok := ret.Get(0).(func(context.Context, ...string) *redis.IntCmd); ok {
+		r0 = rf(ctx, keys...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*redis.IntCmd)
+		}
+	}
+
+	return r0
+}
+
 // Exists provides a mock function with given fields: ctx, keys
 func (_m *RedisClient) Exists(ctx context.Context, keys ...string) *redis.IntCmd {
 	_va := make([]interface{}, len(keys))
@@ -57,6 +84,26 @@ func (_m *RedisClient) SetEx(ctx context.Context, key string, value interface{},
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*redis.StatusCmd)
+		}
+	}
+
+	return r0
+}
+
+// SetNX provides a mock function with given fields: ctx, key, value, expiration
+func (_m *RedisClient) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd {
+	ret := _m.Called(ctx, key, value, expiration)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetNX")
+	}
+
+	var r0 *redis.BoolCmd
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}, time.Duration) *redis.BoolCmd); ok {
+		r0 = rf(ctx, key, value, expiration)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*redis.BoolCmd)
 		}
 	}
 

@@ -31,7 +31,7 @@ func NewAuthUsecase(log *zap.Logger, redisClient storage.RedisClient, jwtToken a
 func (c *authUsecase) Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error) {
 	user, err := c.userRepository.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find user by email: %w", err)
+		return nil, fmt.Errorf("failed to find user by email (%s) = %w", req.Email, err)
 	}
 	if user == nil {
 		return nil, model.ErrUserNotFound
@@ -42,9 +42,9 @@ func (c *authUsecase) Login(ctx context.Context, req *model.LoginRequest) (*mode
 		return nil, model.ErrInvalidPassword
 	}
 
-	accessToken, err := c.jwtToken.Create(fmt.Sprint(user.ID), user.Role)
+	accessToken, err := c.jwtToken.Create(fmt.Sprint(user.ID), string(user.Role))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create access token: %w", err)
+		return nil, fmt.Errorf("failed to create access token for id (%d) = %w", user.ID, err)
 	}
 
 	return &model.LoginResponse{
@@ -58,7 +58,7 @@ func (c *authUsecase) Logout(ctx context.Context, req *model.LogoutRequest) erro
 
 	err := c.redisClient.SetEx(ctx, revokeKey, "true", revokeTTL).Err()
 	if err != nil {
-		return fmt.Errorf("failed to set revoke token: %w", err)
+		return fmt.Errorf("failed to set revoke token for id (%s) = %w", req.Claims.UserID, err)
 	}
 
 	return nil
