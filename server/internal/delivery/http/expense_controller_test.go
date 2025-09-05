@@ -45,18 +45,20 @@ func (s *ExpenseControllerSuite) TestExpenseController_Create() {
 			body:       nil,
 			mockFunc:   func(a *mocks.ExpenseUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"AmountIDR failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Description failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on validate body",
 			body: map[string]interface{}{
-				"amount_idr":  "",
+				"amount_idr":  0,
 				"description": "",
 				"receipt_url": "",
 			},
 			mockFunc:   func(a *mocks.ExpenseUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"AmountIDR failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Description failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on create",

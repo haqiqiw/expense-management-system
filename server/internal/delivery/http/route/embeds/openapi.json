@@ -119,7 +119,7 @@
         }
       }
     },
-    "/api/login": {
+    "/api/auth/login": {
       "post": {
         "tags": ["Auth API"],
         "description": "Login user",
@@ -177,7 +177,7 @@
         }
       }
     },
-    "/api/logout": {
+    "/api/auth/logout": {
       "post": {
         "tags": ["Auth API"],
         "description": "Logout user",

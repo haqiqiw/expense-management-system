@@ -61,6 +61,7 @@ func NewApi(cfg *ApiConfig) {
 	approvalController := http.NewApprovalController(cfg.Log, approvalUsecase)
 
 	routeCfg := route.RouteConfig{
+		Logger:             cfg.Log,
 		App:                cfg.App,
 		AuthMiddlware:      authMiddleware,
 		AuthController:     authController,

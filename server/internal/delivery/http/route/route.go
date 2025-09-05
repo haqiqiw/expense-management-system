@@ -3,10 +3,15 @@ package route
 import (
 	"embed"
 	internalHttp "expense-management-system/internal/delivery/http"
+	"expense-management-system/internal/delivery/http/middleware"
+	"expense-management-system/internal/metrics"
 	"io/fs"
 	"net/http"
 
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
 
 //go:embed embeds/openapi.json
@@ -16,6 +21,7 @@ var swaggerJSON []byte
 var swaggerUI embed.FS
 
 type RouteConfig struct {
+	Logger             *zap.Logger
 	App                *gin.Engine
 	AuthMiddlware      gin.HandlerFunc
 	AuthController     *internalHttp.AuthController
@@ -25,23 +31,32 @@ type RouteConfig struct {
 }
 
 func (c *RouteConfig) Setup() {
+	metrics.Init()
+
+	c.App.Use(requestid.New())
+	c.App.Use(metrics.Middleware())
+	c.App.Use(middleware.RequestLoggerMiddleware(c.Logger))
+	c.App.Use(middleware.RecoverMiddleware(c.Logger))
+	c.App.Use(middleware.ErrorMiddleware(c.Logger))
+
 	SetupSwagger(c.App)
 
 	c.App.GET("/", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "OK")
 	})
-	c.App.GET("/health", func(ctx *gin.Context) {
+	c.App.GET("/healtz", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "OK")
 	})
+	c.App.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	api := c.App.Group("/api")
 
 	// without auth
-	api.POST("/login", c.AuthController.Login)
+	api.POST("/auth/login", c.AuthController.Login)
 	api.POST("/users", c.UserController.Register)
 
 	// with auth
-	api.POST("/logout", c.AuthMiddlware, c.AuthController.Logout)
+	api.POST("/auth/logout", c.AuthMiddlware, c.AuthController.Logout)
 	api.GET("/users/me", c.AuthMiddlware, c.UserController.Me)
 
 	api.POST("/expenses", c.AuthMiddlware, c.ExpenseController.Create)

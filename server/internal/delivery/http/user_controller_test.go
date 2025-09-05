@@ -45,7 +45,10 @@ func (s *UserControllerSuite) TestUserController_Create() {
 			body:       nil,
 			mockFunc:   func(a *mocks.UserUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"Email failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Name failed on the 'required' rule"},` +
+				`{"code":2002,"message":"Password failed on the 'required' rule"},` +
+				`{"code":2003,"message":"Role failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on validate body",
@@ -57,7 +60,10 @@ func (s *UserControllerSuite) TestUserController_Create() {
 			},
 			mockFunc:   func(a *mocks.UserUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"Email failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Name failed on the 'required' rule"},` +
+				`{"code":2002,"message":"Password failed on the 'required' rule"},` +
+				`{"code":2003,"message":"Role failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on create",

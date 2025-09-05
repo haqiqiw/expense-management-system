@@ -52,8 +52,7 @@ func (c *ExpenseController) Create(ctx *gin.Context) {
 
 	err = c.validate.Struct(request)
 	if err != nil {
-		LogWarn(ctx, c.log, "failed to validate request body", err)
-		ctx.Error(model.ErrBadRequest)
+		ctx.Error(err)
 		return
 	}
 

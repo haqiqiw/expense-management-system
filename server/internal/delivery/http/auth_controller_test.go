@@ -44,7 +44,8 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			body:       nil,
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"Email failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Password failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "invalid body",
@@ -54,7 +55,8 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			},
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"Email failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Password failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "error on validate body",
@@ -64,7 +66,8 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			},
 			mockFunc:   func(a *mocks.AuthUsecase) {},
 			wantStatus: http.StatusBadRequest,
-			wantRes:    `{"errors":[{"code":102,"message":"Bad request"}],"meta":{"http_status":400}}`,
+			wantRes: `{"errors":[{"code":2000,"message":"Email failed on the 'required' rule"},` +
+				`{"code":2001,"message":"Password failed on the 'required' rule"}],"meta":{"http_status":400}}`,
 		},
 		{
 			name: "custom error on login",
@@ -116,10 +119,10 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 			ac := internalHttp.NewAuthController(s.log, s.validate, au)
 
 			app := config.NewGin(s.log)
-			app.POST("/api/login", ac.Login)
+			app.POST("/api/auth/login", ac.Login)
 
 			reqBody, _ := json.Marshal(tt.body)
-			req := httptest.NewRequest("POST", "/api/login", bytes.NewReader(reqBody))
+			req := httptest.NewRequest("POST", "/api/auth/login", bytes.NewReader(reqBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			rec := httptest.NewRecorder()
@@ -166,9 +169,9 @@ func (s *AuthControllerSuite) TestAuthController_Logout() {
 
 			app := config.NewGin(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
-			app.POST("/api/logout", ac.Logout)
+			app.POST("/api/auth/logout", ac.Logout)
 
-			req := httptest.NewRequest("POST", "/api/logout", nil)
+			req := httptest.NewRequest("POST", "/api/auth/logout", nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			rec := httptest.NewRecorder()

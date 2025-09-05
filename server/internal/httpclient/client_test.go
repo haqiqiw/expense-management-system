@@ -105,7 +105,7 @@ func TestClient_Do(t *testing.T) {
 			case http.MethodPost:
 				resp, err = client.Post(ctx, tt.path, tt.body)
 			case http.MethodPatch:
-				resp, err = client.Patch(ctx, tt.path, tt.body)
+				resp, err = client.Put(ctx, tt.path, tt.body)
 			case http.MethodDelete:
 				resp, err = client.Delete(ctx, tt.path)
 			}
