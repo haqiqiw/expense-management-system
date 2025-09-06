@@ -5,7 +5,7 @@
         <div class="flex items-center justify-between h-auto min-h-16 py-2 flex-wrap">
           <div class="flex items-center flex-wrap">
             <div class="flex-shrink-0 mr-6">
-              <span class="text-xl font-bold">EMS</span>
+              <span class="text-xl font-bold">EM</span>
             </div>
             <div class="flex items-center space-x-8">
               <RouterLink to="/home" :class="getLinkClass('/home')"> Beranda </RouterLink>

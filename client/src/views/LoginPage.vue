@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg">
-      <h1 class="text-2xl font-bold text-center text-gray-900">Sistem Manajemen Pengeluaran</h1>
+      <h1 class="text-2xl font-bold text-center text-gray-900">Expense Management</h1>
 
       <form class="space-y-6" @submit.prevent="handleLogin">
         <div>
