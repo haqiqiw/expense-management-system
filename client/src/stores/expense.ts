@@ -101,5 +101,23 @@ export const useExpenseStore = defineStore('expense', {
         this.isLoading = false
       }
     },
+
+    async approveExpense(payload: { id: number; notes: string | null }) {
+      try {
+        await apiClient.put(`/expenses/${payload.id}/approve`, { notes: payload.notes })
+      } catch (error) {
+        console.error('Failed to approve expense:', error)
+        throw error
+      }
+    },
+
+    async rejectExpense(payload: { id: number; notes: string | null }) {
+      try {
+        await apiClient.put(`/expenses/${payload.id}/reject`, { notes: payload.notes })
+      } catch (error) {
+        console.error('Failed to reject expense:', error)
+        throw error
+      }
+    },
   },
 })

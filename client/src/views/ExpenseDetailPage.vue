@@ -81,6 +81,7 @@
           <h3 class="text-lg leading-6 font-medium text-gray-900">Persetujuan</h3>
           <button
             v-if="showApprovalAction"
+            @click="isApprovalModalOpen = true"
             type="button"
             class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
           >
@@ -115,6 +116,14 @@
         </div>
       </div>
     </div>
+
+    <ApprovalActionModal
+      v-if="expense"
+      :show="isApprovalModalOpen"
+      :expense-id="expense.id"
+      @close="isApprovalModalOpen = false"
+      @success="fetchExpenseDetails"
+    />
   </div>
 </template>
 
@@ -125,6 +134,7 @@ import { useExpenseStore } from '@/stores/expense'
 import { useAuthStore } from '@/stores/auth'
 import { formatRupiah, formatDate } from '@/utils/formatter'
 import { getStatusClass, getStatusText } from '@/utils/status'
+import ApprovalActionModal from '@/components/expense/ApprovalActionModal.vue'
 import type { AxiosError } from 'axios'
 import type { ApiError } from '@/utils/error'
 
@@ -133,6 +143,7 @@ const expenseStore = useExpenseStore()
 const authStore = useAuthStore()
 
 const errorMessage = ref<string | null>(null)
+const isApprovalModalOpen = ref(false)
 
 const expense = computed(() => expenseStore.currentExpense)
 const isLoading = computed(() => expenseStore.isLoading)
@@ -152,6 +163,10 @@ const showApprovalNotes = computed(() => {
 })
 
 onMounted(async () => {
+  await fetchExpenseDetails()
+})
+
+const fetchExpenseDetails = async () => {
   const expenseId = route.params.id as string
   if (expenseId) {
     try {
@@ -169,5 +184,5 @@ onMounted(async () => {
       }
     }
   }
-})
+}
 </script>
