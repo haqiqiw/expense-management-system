@@ -86,6 +86,8 @@ router.beforeEach(async (to, _, next) => {
       await authStore.fetchUser()
     } catch (error) {
       console.error('Router failed to fetch user:', error)
+      authStore.clearUser()
+      next({ name: 'login' })
     }
   }
 

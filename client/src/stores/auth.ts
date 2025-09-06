@@ -59,10 +59,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await apiClient.post('auth/logout')
         if (response.status == 200) {
-          this.user = null
-          this.token = null
-          setAuthToken(null)
-          localStorage.removeItem('user')
+          this.clearUser()
         } else {
           throw new Error('Logout failed: unexpected error')
         }
@@ -70,6 +67,13 @@ export const useAuthStore = defineStore('auth', {
         console.error('Logout failed:', error)
         throw error
       }
+    },
+
+    clearUser() {
+      this.user = null
+      this.token = null
+      setAuthToken(null)
+      localStorage.removeItem('user')
     },
   },
 })
