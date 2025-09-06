@@ -9,6 +9,7 @@ import (
 	"expense-management-system/internal/messaging"
 	"expense-management-system/internal/repository"
 	"expense-management-system/internal/usecase"
+	"strings"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
@@ -68,6 +69,7 @@ func NewApi(cfg *ApiConfig) {
 		UserController:     userController,
 		ExpenseController:  expenseController,
 		ApprovalController: approvalController,
+		CorsAllowOrigins:   strings.Split(cfg.Config.CorsAllowOrigins, ","),
 	}
 	routeCfg.Setup()
 }

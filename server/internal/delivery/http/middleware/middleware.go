@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -112,4 +113,17 @@ func RequestLoggerMiddleware(logger *zap.Logger) gin.HandlerFunc {
 			zap.Duration("duration", time.Since(start)),
 		)
 	}
+}
+
+func CorsMiddleware(origins []string) gin.HandlerFunc {
+	config := cors.Config{
+		AllowOrigins:     origins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+
+	return cors.New(config)
 }

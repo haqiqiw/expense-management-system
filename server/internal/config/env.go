@@ -15,6 +15,8 @@ type Env struct {
 	AppWriteTimeout int
 	AppIdleTimeout  int
 
+	CorsAllowOrigins string
+
 	DBHost            string
 	DBPort            string
 	DBName            string
@@ -60,6 +62,8 @@ func NewEnv() (*Env, error) {
 		AppReadTimeout:  getEnvInt("APP_READ_TIMEOUT", 60),
 		AppWriteTimeout: getEnvInt("APP_WRITE_TIMEOUT", 60),
 		AppIdleTimeout:  getEnvInt("APP_IDLE_TIMEOUT", 120),
+
+		CorsAllowOrigins: getEnvString("CORS_ALLOW_ORIGINS", "http://localhost:5173"),
 
 		DBHost:            getEnvString("DATABASE_HOST", "127.0.0.1"),
 		DBPort:            getEnvString("DATABASE_PORT", "5432"),

@@ -28,6 +28,7 @@ type RouteConfig struct {
 	UserController     *internalHttp.UserController
 	ExpenseController  *internalHttp.ExpenseController
 	ApprovalController *internalHttp.ApprovalController
+	CorsAllowOrigins   []string
 }
 
 func (c *RouteConfig) Setup() {
@@ -38,6 +39,7 @@ func (c *RouteConfig) Setup() {
 	c.App.Use(middleware.RequestLoggerMiddleware(c.Logger))
 	c.App.Use(middleware.RecoverMiddleware(c.Logger))
 	c.App.Use(middleware.ErrorMiddleware(c.Logger))
+	c.App.Use(middleware.CorsMiddleware(c.CorsAllowOrigins))
 
 	SetupSwagger(c.App)
 
