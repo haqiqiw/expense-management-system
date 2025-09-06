@@ -153,7 +153,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_List() {
 			e.receipt_url AS expense_receipt_url, e.status AS expense_status, e.created_at AS expense_created_at, e.processed_at AS expense_processed_at,
 			u.id AS user_id, u.email AS user_email, u.name AS user_name
 		FROM expenses AS e
-		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 ORDER BY e.created_at DESC LIMIT $2 OFFSET $3`
+		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 ORDER BY e.id DESC LIMIT $2 OFFSET $3`
 
 				m.ExpectQuery(regexp.QuoteMeta(countQuery)).
 					WithArgs(uint64(1)).
@@ -183,7 +183,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_List() {
 			e.receipt_url AS expense_receipt_url, e.status AS expense_status, e.created_at AS expense_created_at, e.processed_at AS expense_processed_at,
 			u.id AS user_id, u.email AS user_email, u.name AS user_name
 		FROM expenses AS e
-		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 ORDER BY e.created_at DESC LIMIT $2 OFFSET $3`
+		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 ORDER BY e.id DESC LIMIT $2 OFFSET $3`
 
 				m.ExpectQuery(regexp.QuoteMeta(countQuery)).
 					WithArgs(uint64(1)).
@@ -240,7 +240,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_List() {
 			e.receipt_url AS expense_receipt_url, e.status AS expense_status, e.created_at AS expense_created_at, e.processed_at AS expense_processed_at,
 			u.id AS user_id, u.email AS user_email, u.name AS user_name
 		FROM expenses AS e
-		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 AND e.status = $2 ORDER BY e.created_at DESC LIMIT $3 OFFSET $4`
+		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 AND e.status = $2 ORDER BY e.id DESC LIMIT $3 OFFSET $4`
 
 				m.ExpectQuery(regexp.QuoteMeta(countQuery)).
 					WithArgs(uint64(1), "approved").
@@ -298,7 +298,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_List() {
 			e.receipt_url AS expense_receipt_url, e.status AS expense_status, e.created_at AS expense_created_at, e.processed_at AS expense_processed_at,
 			u.id AS user_id, u.email AS user_email, u.name AS user_name
 		FROM expenses AS e
-		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 AND e.status = $2 AND e.amount < 1000000 ORDER BY e.created_at DESC LIMIT $3 OFFSET $4`
+		JOIN users AS u ON e.user_id = u.id WHERE e.user_id = $1 AND e.status = $2 AND e.amount < 1000000 ORDER BY e.id DESC LIMIT $3 OFFSET $4`
 
 				m.ExpectQuery(regexp.QuoteMeta(countQuery)).
 					WithArgs(uint64(1), "approved").
@@ -357,7 +357,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_List() {
 			e.receipt_url AS expense_receipt_url, e.status AS expense_status, e.created_at AS expense_created_at, e.processed_at AS expense_processed_at,
 			u.id AS user_id, u.email AS user_email, u.name AS user_name
 		FROM expenses AS e
-		JOIN users AS u ON e.user_id = u.id WHERE e.status = 'awaiting_approval' AND e.user_id != $1 ORDER BY e.created_at DESC LIMIT $2 OFFSET $3`
+		JOIN users AS u ON e.user_id = u.id WHERE e.status = 'awaiting_approval' AND e.user_id != $1 ORDER BY e.id DESC LIMIT $2 OFFSET $3`
 
 				m.ExpectQuery(regexp.QuoteMeta(countQuery)).
 					WithArgs(uint64(1)).

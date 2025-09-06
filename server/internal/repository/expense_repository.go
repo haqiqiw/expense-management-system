@@ -103,7 +103,7 @@ func (r *ExpenseRepository) List(ctx context.Context, req *model.ListExpenseRequ
 	}
 
 	selectQuery := baseSelectQuery + whereQuery
-	selectQuery += fmt.Sprintf(" ORDER BY e.created_at DESC LIMIT $%d OFFSET $%d", argCount, argCount+1)
+	selectQuery += fmt.Sprintf(" ORDER BY e.id DESC LIMIT $%d OFFSET $%d", argCount, argCount+1)
 	selectArgs := append(whereArgs, req.Limit, req.Offset)
 
 	rows, err := r.db.Query(ctx, selectQuery, selectArgs...)
