@@ -8,7 +8,7 @@
     <form @submit.prevent="handleSubmit">
       <div class="space-y-4">
         <div>
-          <label for="amount" class="block text-sm font-medium text-gray-700">Jumlah</label>
+          <label for="amount" class="block text-sm font-medium text-gray-700">Nominal</label>
           <input
             id="amount"
             ref="inputRef"
@@ -17,7 +17,7 @@
             placeholder="10.000"
           />
           <p class="mt-2 text-xs text-gray-500">
-            Minimum: {{ formatRupiah(10000) }} &nbsp;&bull;&nbsp; Maksimum:
+            Minimum: {{ formatRupiah(10000) }} &nbsp; / &nbsp; Maksimum:
             {{ formatRupiah(50000000) }}
           </p>
           <p v-if="isAmountHigh" class="mt-2 text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md">
@@ -33,6 +33,7 @@
             rows="4"
             required
             class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md0"
+            placeholder="Deksripsi"
           ></textarea>
         </div>
 

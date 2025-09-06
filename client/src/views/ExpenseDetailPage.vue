@@ -34,7 +34,7 @@
               <dd class="mt-1 text-sm text-gray-900">{{ expense.user.name }}</dd>
             </div>
             <div class="px-4 py-5 sm:col-span-1">
-              <dt class="text-sm font-medium text-gray-500">Jumlah</dt>
+              <dt class="text-sm font-medium text-gray-500">Nominal</dt>
               <dd class="mt-1 text-sm font-medium text-gray-600">
                 {{ formatRupiah(expense.amount_idr) }}
               </dd>
@@ -91,8 +91,8 @@
         <div class="border-t border-gray-200">
           <div v-if="showApprovalNotes" class="px-4 pt-4">
             <p class="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md">
-              Pengeluaran dengan jumlah &lt; Rp 1.000.000 tidak membutuhkan persetujuan dari manager
-              dan disetujui secara otomatis oleh sistem.
+              Pengeluaran dengan nominal &lt; Rp 1.000.000 tidak membutuhkan persetujuan dari
+              manager dan disetujui secara otomatis oleh sistem.
             </p>
           </div>
           <dl class="grid grid-cols-1 sm:grid-cols-3">
