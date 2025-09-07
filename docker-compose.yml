@@ -1,5 +1,45 @@
 version: "3.8"
 
+x-server-common-env: &server-common-env
+  APP_ENV: production
+  APP_NAME: expense-management
+  APP_PORT: 8500
+  APP_READ_TIMEOUT: 60
+  APP_WRITE_TIMEOUT: 60
+  APP_IDLE_TIMEOUT: 120
+
+  CORS_ALLOW_ORIGINS: http://localhost:5173
+
+  DATABASE_HOST: postgresql
+  DATABASE_PORT: 5432
+  DATABASE_NAME: expensemanagement
+  DATABASE_USERNAME: user_rw
+  DATABASE_PASSWORD: user_rw
+  DATABASE_MAX_CONN_LIFETIME: 180
+  DATABASE_MAX_CONN: 8
+  DATABASE_MIN_CONN: 4
+  DATABASE_SSL_MODE: disable
+  DATABASE_CONNECT_TIMEOUT: 5
+
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_DB: 0
+
+  JWT_SECRET_KEY: adadehmautauaja
+  JWT_EXPIRATION_DAY: 1
+
+  KAFKA_BROKER_HOST: kafka:29092
+  KAFKA_CONSUMER_GROUP: expense-management
+  KAFKA_AUTO_OFFSET_RESET: latest
+  KAFKA_TOPIC_EXPENSE_APPROVED: expense-approved
+  KAFKA_MAX_RETRIES: 3
+  KAFKA_BACKOFF_DURATION: 1
+  KAFKA_MAX_EXECUTE_DURATION: 10
+
+  PAYMENT_PARTNER_HOST: http://mock-payment-api:9500
+  PAYMENT_PARTNER_TIMEOUT: 3
+  PAYMENT_LOCK_DURATION: 30
+
 services:
   postgresql:
     image: postgres:17.6
@@ -13,6 +53,11 @@ services:
       - "5432:5432"
     volumes:
       - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_rw -d expensemanagement"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7
@@ -20,6 +65,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -48,6 +98,11 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -60,6 +115,64 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER: ""
     depends_on:
       - kafka
+
+  api:
+    build:
+      context: ./server
+      dockerfile: ./deploy/api/Dockerfile
+    container_name: em-api
+    restart: always
+    ports:
+      - "8500:8500"
+    environment:
+      <<: *server-common-env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  expense-approved-consumer:
+    build:
+      context: ./server
+      dockerfile: ./deploy/expense-approved-consumer/Dockerfile
+    container_name: em-expense-approved-consumer
+    restart: always
+    environment:
+      <<: *server-common-env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  mock-payment-api:
+    build:
+      context: ./server
+      dockerfile: ./deploy/mock-payment-api/Dockerfile
+    container_name: em-mock-payment-api
+    restart: always
+    ports:
+      - "9500:9500"
+    environment:
+      - APP_PORT=9500
+
+  web:
+    build:
+      context: ./client
+      dockerfile: ./deploy/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: em-web
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
 
 volumes:
   postgresql_data:

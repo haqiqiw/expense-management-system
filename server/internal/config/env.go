@@ -76,7 +76,7 @@ func NewEnv() (*Env, error) {
 		DBSSLMode:         getEnvString("DATABASE_SSL_MODE", "disable"),
 		DBConnectTimeout:  getEnvInt("DATABASE_CONNECT_TIMEOUT", 5),
 
-		RedisHost:  getEnvString("REDIST_HOST", "127.0.0.1"),
+		RedisHost:  getEnvString("REDIS_HOST", "127.0.0.1"),
 		RedistPort: getEnvString("REDIS_PORT", "6379"),
 		RedistDB:   getEnvInt("REDIS_DB", 0),
 
@@ -92,7 +92,7 @@ func NewEnv() (*Env, error) {
 		KafkaBackoffDuration:    getEnvInt("KAFKA_BACKOFF_DURATION", 1),
 		KafkaMaxExecuteDuration: getEnvInt("KAFKA_MAX_EXECUTE_DURATION", 10),
 
-		PaymentPartnerHost:    getEnvString("PAYMENT_PARTNER_HOST", "http://127.0.0.1:9999"),
+		PaymentPartnerHost:    getEnvString("PAYMENT_PARTNER_HOST", "http://127.0.0.1:9500"),
 		PaymentPartnerTimeout: getEnvInt("PAYMENT_PARTNER_TIMEOUT", 3),
 		PaymentLockDuration:   getEnvInt("PAYMENT_LOCK_DURATION", 30),
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/google/uuid"
@@ -76,8 +77,11 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := 9999
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "9500"
+	}
 	http.HandleFunc("/v1/payments", paymentHandler)
-	log.Printf("mock payment server running at port %d\n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	log.Printf("mock payment server running at port %s\n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
