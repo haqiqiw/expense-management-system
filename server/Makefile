@@ -5,10 +5,10 @@ DB_URL = "postgres://user_rw:user_rw@localhost:5432/expensemanagement?sslmode=di
 .PHONY: test
 
 docker-up:
-	docker-compose up -d
+	docker compose -p em-dev -f docker-compose.dev.yml up -d
 
 docker-down:
-	docker-compose down
+	docker-compose -p em-dev down
 
 migrate-up:
 	$(MIGRATE) -path $(MIGRATION_DIR) -database $(DB_URL) up
@@ -30,7 +30,7 @@ run-api:
 	go run cmd/api/main.go
 
 run-consumer:
-	go run cmd/consumer/main.go
+	go run cmd/expense-approved-consumer/main.go
 
 test:
 	go test -v ./...
