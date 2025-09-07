@@ -1,45 +1,47 @@
-# client
+# Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+This directory contains frontend for Expense Management System.
 
-## Recommended IDE Setup
+## Prerequisites
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Before you begin, make sure you have the following installed on your machine:
 
-## Type Support for `.vue` Imports in TS
+- [Node.js](https://nodejs.org/id) (version 20.19.4 or later)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Development Setup
 
-## Customize configuration
+The following commands should be run from the `client/` directory.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Configure Environment Variables
 
-## Project Setup
+Copy the sample environment file to create your local configuration.
 
-```sh
+```bash
+cp env.sample .env.local
+```
+
+Adjust the variables in `.env.local` if needed.
+
+### Install Dependencies
+
+Install the required depedencies:
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Start the Development Server
 
-```sh
+Run the application in development mode with hot-reloading:
+
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Testing
 
-```sh
-npm run build
-```
+To run the test:
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+```bash
+npm run test
 ```
