@@ -222,10 +222,10 @@ func (r *ExpenseRepository) UpdateStatusByIDTx(ctx context.Context, exec db.Exec
 	return nil
 }
 
-func (r *ExpenseRepository) UpdateStatusByID(ctx context.Context, id uint64, status entity.ExpenseStatus, processedAt time.Time) error {
-	query := `UPDATE expenses SET status = $1, processed_at = $2 WHERE id = $3`
+func (r *ExpenseRepository) CompleteByIDTx(ctx context.Context, exec db.Executor, id uint64, processedAt time.Time) error {
+	query := `UPDATE expenses SET status = 'completed', processed_at = $1 WHERE id = $2`
 
-	_, err := r.db.Exec(ctx, query, status, processedAt, id)
+	_, err := exec.Exec(ctx, query, processedAt, id)
 	if err != nil {
 		return err
 	}

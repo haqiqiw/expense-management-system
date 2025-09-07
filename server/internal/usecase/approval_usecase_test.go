@@ -146,7 +146,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Approve() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusApproved}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusApproved}, nil)
 				db.ExpectRollback()
 			},
 			wantErrMsg: "Expense already processed",
@@ -168,7 +168,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Approve() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(errors.New("something error"))
 				db.ExpectRollback()
@@ -192,7 +192,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Approve() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				er.On("UpdateStatusByIDTx", mock.Anything, mock.Anything, mock.Anything, entity.ExpenseStatusApproved).
@@ -218,7 +218,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Approve() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				er.On("UpdateStatusByIDTx", mock.Anything, mock.Anything, mock.Anything, entity.ExpenseStatusApproved).
@@ -245,7 +245,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Approve() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				er.On("UpdateStatusByIDTx", mock.Anything, mock.Anything, mock.Anything, entity.ExpenseStatusApproved).
@@ -395,7 +395,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Reject() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusApproved}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusApproved}, nil)
 				db.ExpectRollback()
 			},
 			wantErrMsg: "Expense already processed",
@@ -417,7 +417,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Reject() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(errors.New("something error"))
 				db.ExpectRollback()
@@ -441,7 +441,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Reject() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				er.On("UpdateStatusByIDTx", mock.Anything, mock.Anything, mock.Anything, entity.ExpenseStatusRejected).
@@ -467,7 +467,7 @@ func (s *ApprovalUsecaseSuite) TestApprovalUsecase_Reject() {
 			) {
 				db.ExpectBegin()
 				er.On("FindByIDWithLock", mock.Anything, mock.Anything, uint64(1)).
-					Return(&entity.Expense{UserID: 2, Status: entity.ExpenseStatusAwaitingApproval}, nil)
+					Return(&entity.Expense{UserID: 2, Amount: 1500000, Status: entity.ExpenseStatusAwaitingApproval}, nil)
 				ar.On("CreateTx", mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				er.On("UpdateStatusByIDTx", mock.Anything, mock.Anything, mock.Anything, entity.ExpenseStatusRejected).

@@ -10,14 +10,16 @@ var (
 	ErrMissingOrInvalidAuthHeader = NewCustomError(http.StatusUnauthorized, 104, "Missing or invalid auth header")
 	ErrInvalidAuthToken           = NewCustomError(http.StatusUnauthorized, 105, "Invalid auth token")
 	ErrTokenRevoked               = NewCustomError(http.StatusUnauthorized, 106, "Token revoked")
+	ErrTooManyRequest             = NewCustomError(http.StatusTooManyRequests, 107, "Too many requests")
 
-	ErrEmailAlreadyExist       = NewCustomError(http.StatusBadRequest, 1000, "Email already exist")
-	ErrUserNotFound            = NewCustomError(http.StatusNotFound, 1001, "User not found")
-	ErrInvalidPassword         = NewCustomError(http.StatusUnauthorized, 1002, "Invalid password")
-	ErrExpenseNotFound         = NewCustomError(http.StatusNotFound, 1003, "Expense not found")
-	ErrExpenseMinAmount        = NewCustomError(http.StatusBadRequest, 1004, "Amount can't be less than Rp 10.000")
-	ErrExpenseMaxAmount        = NewCustomError(http.StatusBadRequest, 1005, "Amount can't be greater than Rp 50.000.000")
-	ErrExpenseAlreadyProcessed = NewCustomError(http.StatusUnprocessableEntity, 1006, "Expense already processed")
+	ErrEmailAlreadyExist         = NewCustomError(http.StatusBadRequest, 1000, "Email already exist")
+	ErrUserNotFound              = NewCustomError(http.StatusNotFound, 1001, "User not found")
+	ErrInvalidPassword           = NewCustomError(http.StatusUnauthorized, 1002, "Invalid password")
+	ErrExpenseNotFound           = NewCustomError(http.StatusNotFound, 1003, "Expense not found")
+	ErrExpenseMinAmount          = NewCustomError(http.StatusBadRequest, 1004, "Amount can't be less than Rp 10.000")
+	ErrExpenseMaxAmount          = NewCustomError(http.StatusBadRequest, 1005, "Amount can't be greater than Rp 50.000.000")
+	ErrExpenseAlreadyProcessed   = NewCustomError(http.StatusUnprocessableEntity, 1006, "Expense already processed")
+	ErrExpenseNotRequireApproval = NewCustomError(http.StatusUnprocessableEntity, 1007, "Expense don't require approval")
 )
 
 type ErrorItem struct {

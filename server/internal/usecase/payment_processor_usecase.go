@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"expense-management-system/internal/db"
 	"expense-management-system/internal/entity"
 	"expense-management-system/internal/model"
 	"expense-management-system/internal/storage"
@@ -19,17 +20,19 @@ const (
 type paymentProcessorUsecase struct {
 	log                      *zap.Logger
 	redisClient              storage.RedisClient
+	tx                       db.Transactioner
 	expenseRepository        ExpenseRepository
 	paymentPartnerRepository PaymentPartnerRepository
 	paymentLockDuration      int
 }
 
-func NewPaymentProcessorUsecase(log *zap.Logger, redisClient storage.RedisClient,
+func NewPaymentProcessorUsecase(log *zap.Logger, redisClient storage.RedisClient, tx db.Transactioner,
 	expenseRepository ExpenseRepository, paymentPartnerRepository PaymentPartnerRepository,
 	paymentLockDuration int) PaymentProcessorUsecase {
 	return &paymentProcessorUsecase{
 		log:                      log,
 		redisClient:              redisClient,
+		tx:                       tx,
 		expenseRepository:        expenseRepository,
 		paymentPartnerRepository: paymentPartnerRepository,
 		paymentLockDuration:      paymentLockDuration,
@@ -78,23 +81,31 @@ func (c *paymentProcessorUsecase) Execute(ctx context.Context, req *model.Paymen
 	}
 	defer c.redisClient.Del(ctx, lockKey)
 
-	partnerReq := &model.PaymentPartnerRequest{
-		Amount:     req.Amount,
-		ExternalID: req.IdempotencyKey,
-	}
-	_, err = c.paymentPartnerRepository.Execute(ctx, partnerReq)
-	if err != nil {
-		return fmt.Errorf("failed to call partner for expense id (%d) = %w", req.ID, err)
-	}
+	err = c.tx.Do(ctx, func(exec db.Executor) error {
+		// update the expense to complete, then call the partner
+		// if the partner call fails, we can still rollback the expense update
+		// even though, there’s a chance both succeed but the transaction commit fails
+		// in that case, the partner already processed the payment
+		//
+		// since the partner guarantees idempotency, next retries will succeed
+		// and indicate that the payment was already executed, avoiding double payment
+		// afterwards, we can safely retry updating the expense to completed
+		err = c.expenseRepository.CompleteByIDTx(ctx, exec, req.ID, time.Now())
+		if err != nil {
+			return fmt.Errorf("failed to update expense for id (%d) = %w", req.ID, err)
+		}
 
-	// at this point, the partner already processed the payment successfully
-	// if updating the expense status in DB fails, we return an error so the consumer will retry
-	// on next retry, the partner will return success again because their API is idempotent,
-	// and we’ll retry the DB update to ensures the "completed" status is persisted
-	err = c.expenseRepository.UpdateStatusByID(ctx, req.ID, entity.ExpenseStatusCompleted, time.Now())
-	if err != nil {
-		return fmt.Errorf("failed to update expense for id (%d) = %w", req.ID, err)
-	}
+		partnerReq := &model.PaymentPartnerRequest{
+			Amount:     req.Amount,
+			ExternalID: req.IdempotencyKey,
+		}
+		_, err = c.paymentPartnerRepository.Execute(ctx, partnerReq)
+		if err != nil {
+			return fmt.Errorf("failed to call partner for expense id (%d) = %w", req.ID, err)
+		}
 
-	return nil
+		return nil
+	})
+
+	return err
 }

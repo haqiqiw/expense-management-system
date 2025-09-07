@@ -720,7 +720,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_UpdateStatusByIDTx() {
 	}
 }
 
-func (s *ExpenseRepositorySuite) TestExpenseRepository_UpdateStatusByID() {
+func (s *ExpenseRepositorySuite) TestExpenseRepository_CompleteByIDTx() {
 	tests := []struct {
 		name        string
 		mockFunc    func(pgxmock.PgxPoolIface)
@@ -731,8 +731,8 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_UpdateStatusByID() {
 		{
 			name: "error",
 			mockFunc: func(m pgxmock.PgxPoolIface) {
-				m.ExpectExec(regexp.QuoteMeta(`UPDATE expenses SET status = $1, processed_at = $2 WHERE id = $3`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), uint64(1)).
+				m.ExpectExec(regexp.QuoteMeta(`UPDATE expenses SET status = 'completed', processed_at = $1 WHERE id = $2`)).
+					WithArgs(pgxmock.AnyArg(), uint64(1)).
 					WillReturnError(errors.New("something error"))
 			},
 			paramID:     uint64(1),
@@ -742,8 +742,8 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_UpdateStatusByID() {
 		{
 			name: "success",
 			mockFunc: func(m pgxmock.PgxPoolIface) {
-				m.ExpectExec(regexp.QuoteMeta(`UPDATE expenses SET status = $1, processed_at = $2 WHERE id = $3`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), uint64(1)).
+				m.ExpectExec(regexp.QuoteMeta(`UPDATE expenses SET status = 'completed', processed_at = $1 WHERE id = $2`)).
+					WithArgs(pgxmock.AnyArg(), uint64(1)).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			paramID:     uint64(1),
@@ -756,7 +756,7 @@ func (s *ExpenseRepositorySuite) TestExpenseRepository_UpdateStatusByID() {
 		s.Run(tt.name, func() {
 			tt.mockFunc(s.mock)
 
-			err := s.repo.UpdateStatusByID(s.ctx, tt.paramID, tt.paramStatus, time.Now())
+			err := s.repo.CompleteByIDTx(s.ctx, s.mock, tt.paramID, time.Now())
 			s.Equal(tt.wantErr, err)
 		})
 	}

@@ -7,17 +7,21 @@ import (
 	"expense-management-system/internal/delivery/http/middleware"
 	"expense-management-system/internal/delivery/http/route"
 	"expense-management-system/internal/messaging"
+	"expense-management-system/internal/metrics"
 	"expense-management-system/internal/repository"
 	"expense-management-system/internal/usecase"
 	"strings"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+
+	redisrate "github.com/go-redis/redis_rate/v10"
 )
 
 type ApiConfig struct {
@@ -32,6 +36,20 @@ type ApiConfig struct {
 }
 
 func NewApi(cfg *ApiConfig) {
+	metrics.Init()
+
+	allowedOrigins := strings.Split(cfg.Config.CorsAllowOrigins, ",")
+	rateLimiter := redisrate.NewLimiter(cfg.RedisClient)
+
+	commonMiddlewares := []gin.HandlerFunc{
+		requestid.New(),
+		middleware.NewRequestLoggerMiddleware(cfg.Log),
+		middleware.NewRecoverMiddleware(cfg.Log),
+		middleware.NewErrorMiddleware(cfg.Log),
+		middleware.NewCorsMiddleware(allowedOrigins),
+		middleware.NewLimiterMiddleware(rateLimiter),
+	}
+
 	jwtToken := auth.NewJWTToken(cfg.Config.JWTSecretKey, time.Hour*24*time.Duration(cfg.Config.JWTExpirationDay))
 	authMiddleware := middleware.NewAuthMiddleware(cfg.Log, cfg.RedisClient, jwtToken)
 
@@ -59,17 +77,16 @@ func NewApi(cfg *ApiConfig) {
 	authController := http.NewAuthController(cfg.Log, cfg.Validate, authUsecase)
 	userController := http.NewUserController(cfg.Log, cfg.Validate, userUsecase)
 	expenseController := http.NewExpenseController(cfg.Log, cfg.Validate, expenseUsecase)
-	approvalController := http.NewApprovalController(cfg.Log, approvalUsecase)
+	approvalController := http.NewApprovalController(cfg.Log, cfg.Validate, approvalUsecase)
 
 	routeCfg := route.RouteConfig{
-		Logger:             cfg.Log,
 		App:                cfg.App,
+		CommonMiddlewares:  commonMiddlewares,
 		AuthMiddlware:      authMiddleware,
 		AuthController:     authController,
 		UserController:     userController,
 		ExpenseController:  expenseController,
 		ApprovalController: approvalController,
-		CorsAllowOrigins:   strings.Split(cfg.Config.CorsAllowOrigins, ","),
 	}
 	routeCfg.Setup()
 }

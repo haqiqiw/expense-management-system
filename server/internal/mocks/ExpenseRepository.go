@@ -19,6 +19,24 @@ type ExpenseRepository struct {
 	mock.Mock
 }
 
+// CompleteByIDTx provides a mock function with given fields: ctx, exec, id, processedAt
+func (_m *ExpenseRepository) CompleteByIDTx(ctx context.Context, exec db.Executor, id uint64, processedAt time.Time) error {
+	ret := _m.Called(ctx, exec, id, processedAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CompleteByIDTx")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, db.Executor, uint64, time.Time) error); ok {
+		r0 = rf(ctx, exec, id, processedAt)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Create provides a mock function with given fields: ctx, expense
 func (_m *ExpenseRepository) Create(ctx context.Context, expense *entity.Expense) error {
 	ret := _m.Called(ctx, expense)
@@ -162,24 +180,6 @@ func (_m *ExpenseRepository) List(ctx context.Context, req *model.ListExpenseReq
 	}
 
 	return r0, r1, r2
-}
-
-// UpdateStatusByID provides a mock function with given fields: ctx, id, status, processedAt
-func (_m *ExpenseRepository) UpdateStatusByID(ctx context.Context, id uint64, status entity.ExpenseStatus, processedAt time.Time) error {
-	ret := _m.Called(ctx, id, status, processedAt)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateStatusByID")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint64, entity.ExpenseStatus, time.Time) error); ok {
-		r0 = rf(ctx, id, status, processedAt)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // UpdateStatusByIDTx provides a mock function with given fields: ctx, exec, id, status

@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+// for seeding purposes, the password for each user is set to be
+// the same as the prefix of their email (the part before '@')
+// example: "john@mail.com" => password: "john"
 func main() {
 	ctx := context.Background()
 

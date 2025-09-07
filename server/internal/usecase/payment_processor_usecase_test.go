@@ -3,12 +3,14 @@ package usecase_test
 import (
 	"context"
 	"errors"
+	"expense-management-system/internal/db"
 	"expense-management-system/internal/entity"
 	"expense-management-system/internal/mocks"
 	"expense-management-system/internal/model"
 	"expense-management-system/internal/usecase"
 	"testing"
 
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -16,7 +18,9 @@ import (
 )
 
 type PpMockFunc func(
+	db pgxmock.PgxPoolIface,
 	rc *mocks.RedisClient,
+	tx db.Transactioner,
 	er *mocks.ExpenseRepository,
 	ppr *mocks.PaymentPartnerRepository,
 )
@@ -48,7 +52,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -66,7 +72,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -84,7 +92,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -102,7 +112,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -125,7 +137,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -140,35 +154,6 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 			wantErrMsg: "",
 		},
 		{
-			name: "error on payment partner",
-			request: &model.PaymentProcessorRequest{
-				ID:             1,
-				UserID:         1,
-				Amount:         17000,
-				IdempotencyKey: "EXP-000ABC123",
-			},
-			mockFunc: func(
-				rc *mocks.RedisClient,
-				er *mocks.ExpenseRepository,
-				ppr *mocks.PaymentPartnerRepository,
-			) {
-				er.On("FindByID", mock.Anything, uint64(1)).
-					Return(&entity.Expense{ID: 1, Status: entity.ExpenseStatusApproved}, nil)
-
-				boolCmd := redis.NewBoolCmd(context.Background())
-				boolCmd.SetVal(true)
-				rc.On("SetNX", mock.Anything, "expense-payment:lock:1", "lock", mock.Anything).
-					Return(boolCmd)
-
-				ppr.On("Execute", mock.Anything, mock.Anything).
-					Return(nil, errors.New("something error"))
-
-				intCmd := redis.NewIntCmd(context.Background())
-				rc.On("Del", mock.Anything, "expense-payment:lock:1").Return(intCmd)
-			},
-			wantErrMsg: "failed to call partner for expense id (1) = something error",
-		},
-		{
 			name: "error on update expense",
 			request: &model.PaymentProcessorRequest{
 				ID:             1,
@@ -177,7 +162,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -189,15 +176,50 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				rc.On("SetNX", mock.Anything, "expense-payment:lock:1", "lock", mock.Anything).
 					Return(boolCmd)
 
-				ppr.On("Execute", mock.Anything, mock.Anything).
-					Return(nil, nil)
-				er.On("UpdateStatusByID", mock.Anything, uint64(1), entity.ExpenseStatusCompleted, mock.Anything).
+				db.ExpectBegin()
+				er.On("CompleteByIDTx", mock.Anything, mock.Anything, uint64(1), mock.Anything).
 					Return(errors.New("something error"))
+				db.ExpectRollback()
 
 				intCmd := redis.NewIntCmd(context.Background())
 				rc.On("Del", mock.Anything, "expense-payment:lock:1").Return(intCmd)
 			},
 			wantErrMsg: "failed to update expense for id (1) = something error",
+		},
+		{
+			name: "error on payment partner",
+			request: &model.PaymentProcessorRequest{
+				ID:             1,
+				UserID:         1,
+				Amount:         17000,
+				IdempotencyKey: "EXP-000ABC123",
+			},
+			mockFunc: func(
+				db pgxmock.PgxPoolIface,
+				rc *mocks.RedisClient,
+				tx db.Transactioner,
+				er *mocks.ExpenseRepository,
+				ppr *mocks.PaymentPartnerRepository,
+			) {
+				er.On("FindByID", mock.Anything, uint64(1)).
+					Return(&entity.Expense{ID: 1, Status: entity.ExpenseStatusApproved}, nil)
+
+				boolCmd := redis.NewBoolCmd(context.Background())
+				boolCmd.SetVal(true)
+				rc.On("SetNX", mock.Anything, "expense-payment:lock:1", "lock", mock.Anything).
+					Return(boolCmd)
+
+				db.ExpectBegin()
+				er.On("CompleteByIDTx", mock.Anything, mock.Anything, uint64(1), mock.Anything).
+					Return(nil)
+				ppr.On("Execute", mock.Anything, mock.Anything).
+					Return(nil, errors.New("something error"))
+				db.ExpectRollback()
+
+				intCmd := redis.NewIntCmd(context.Background())
+				rc.On("Del", mock.Anything, "expense-payment:lock:1").Return(intCmd)
+			},
+			wantErrMsg: "failed to call partner for expense id (1) = something error",
 		},
 		{
 			name: "success",
@@ -208,7 +230,9 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				IdempotencyKey: "EXP-000ABC123",
 			},
 			mockFunc: func(
+				db pgxmock.PgxPoolIface,
 				rc *mocks.RedisClient,
+				tx db.Transactioner,
 				er *mocks.ExpenseRepository,
 				ppr *mocks.PaymentPartnerRepository,
 			) {
@@ -220,10 +244,14 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 				rc.On("SetNX", mock.Anything, "expense-payment:lock:1", "lock", mock.Anything).
 					Return(boolCmd)
 
-				ppr.On("Execute", mock.Anything, mock.Anything).
-					Return(nil, nil)
-				er.On("UpdateStatusByID", mock.Anything, uint64(1), entity.ExpenseStatusCompleted, mock.Anything).
+				db.ExpectBegin()
+				er.On("CompleteByIDTx", mock.Anything, mock.Anything, uint64(1), mock.Anything).
 					Return(nil)
+				ppr.On("Execute", mock.Anything, mock.Anything).
+					Return(&model.PaymentPartnerResponse{
+						PartnerID: "sample-id",
+					}, nil)
+				db.ExpectCommit()
 
 				intCmd := redis.NewIntCmd(context.Background())
 				rc.On("Del", mock.Anything, "expense-payment:lock:1").Return(intCmd)
@@ -234,12 +262,16 @@ func (s *PaymentProcessorUsecaseSuite) TestPaymentProcessorUsecase_Execute() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
+			dbMock, _ := pgxmock.NewPool()
+			defer dbMock.Close()
+			tx := db.NewTransactioner(dbMock)
+
 			rc := mocks.NewRedisClient(s.T())
 			er := mocks.NewExpenseRepository(s.T())
 			ppr := mocks.NewPaymentPartnerRepository(s.T())
 
-			usecase := usecase.NewPaymentProcessorUsecase(s.log, rc, er, ppr, 1)
-			tt.mockFunc(rc, er, ppr)
+			usecase := usecase.NewPaymentProcessorUsecase(s.log, rc, tx, er, ppr, 1)
+			tt.mockFunc(dbMock, rc, tx, er, ppr)
 
 			err := usecase.Execute(s.ctx, tt.request)
 

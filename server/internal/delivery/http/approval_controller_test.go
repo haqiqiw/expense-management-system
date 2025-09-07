@@ -85,7 +85,7 @@ func (s *ApprovalControllerSuite) TestApprovalController_Approve() {
 			au := mocks.NewApprovalUsecase(s.T())
 			tt.mockFunc(au)
 
-			ac := internalHttp.NewApprovalController(s.log, au)
+			ac := internalHttp.NewApprovalController(s.log, s.validate, au)
 
 			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
@@ -159,7 +159,7 @@ func (s *ApprovalControllerSuite) TestApprovalController_Reject() {
 			au := mocks.NewApprovalUsecase(s.T())
 			tt.mockFunc(au)
 
-			ac := internalHttp.NewApprovalController(s.log, au)
+			ac := internalHttp.NewApprovalController(s.log, s.validate, au)
 
 			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))

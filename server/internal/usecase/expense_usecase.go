@@ -4,9 +4,11 @@ import (
 	"context"
 	"expense-management-system/internal/entity"
 	"expense-management-system/internal/messaging"
+	"expense-management-system/internal/metrics"
 	"expense-management-system/internal/model"
 	"expense-management-system/internal/model/serializer"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -43,19 +45,15 @@ func (c *expenseUsecase) Create(ctx context.Context, req *model.CreateExpenseReq
 	expense := &entity.Expense{
 		UserID:      req.UserID,
 		Amount:      req.AmountIDR,
-		Description: req.Description,
+		Description: strings.TrimSpace(req.Description),
 		ReceiptURL:  req.ReceiptURL,
 		Status:      status,
 	}
-
 	err := c.expenseRepository.Create(ctx, expense)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create expense = %w", err)
 	}
 
-	// publish after commit to avoid event emitted but underlying DB change never committed
-	// if publish fails, just log, since the DB is already committed
-	// in a real system, we can handle this with outbox pattern or retry mechanism
 	if expense.Status == entity.ExpenseStatusApproved {
 		event := model.ExpenseApprovedEvent{
 			ID:             expense.ID,
@@ -63,14 +61,22 @@ func (c *expenseUsecase) Create(ctx context.Context, req *model.CreateExpenseReq
 			Amount:         expense.Amount,
 			IdempotencyKey: expense.GetKey(),
 		}
+
+		// publish after the expense is successfully created
+		// if publishing fails, log the error and send a metric to notify us
+		// later, we can run a script to retry sending failed events
+		// a more robust solution would be to use the outbox pattern
+		eventStatus := "success"
 		err = c.expenseApprovedProducer.Send(&event)
 		if err != nil {
+			eventStatus = "fail"
 			c.log.Error(
 				fmt.Sprintf("failed to send expense-approved event for id (%d) = %s", event.ID, err.Error()),
 				zap.Any("event", event),
 				zap.Strings("tags", []string{"expense", "create", "send-event", "expense-approved"}),
 			)
 		}
+		metrics.IncrementEvent(metrics.EventPusblishExpenseApprove, eventStatus)
 	}
 
 	return serializer.ExpenseToCreateResponse(expense), nil

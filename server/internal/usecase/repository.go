@@ -24,7 +24,7 @@ type ExpenseRepository interface {
 	FindByID(ctx context.Context, id uint64) (*entity.Expense, error)
 	FindByIDWithLock(ctx context.Context, exec db.Executor, id uint64) (*entity.Expense, error)
 	UpdateStatusByIDTx(ctx context.Context, exec db.Executor, id uint64, status entity.ExpenseStatus) error
-	UpdateStatusByID(ctx context.Context, id uint64, status entity.ExpenseStatus, processedAt time.Time) error
+	CompleteByIDTx(ctx context.Context, exec db.Executor, id uint64, processedAt time.Time) error
 }
 
 //go:generate mockery --name=ApprovalRepository --structname ApprovalRepository --outpkg=mocks --output=./../mocks

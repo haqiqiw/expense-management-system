@@ -3,21 +3,16 @@
     <nav class="bg-white border-b border-gray-200">
       <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-auto min-h-16 py-2 flex-wrap">
-          <div class="flex items-center flex-wrap">
-            <div class="flex-shrink-0 mr-6">
-              <span class="text-xl font-bold">EM</span>
-            </div>
-            <div class="flex items-center space-x-8">
-              <RouterLink to="/home" :class="getLinkClass('/home')"> Beranda </RouterLink>
-              <RouterLink to="/expenses" :class="getLinkClass('/expenses')">Pengeluaran</RouterLink>
-              <RouterLink
-                v-if="authStore.userRole === 'manager'"
-                to="/approvals"
-                :class="getLinkClass('/approvals')"
-              >
-                Persetujuan
-              </RouterLink>
-            </div>
+          <div class="flex items-center space-x-8">
+            <RouterLink to="/home" :class="getLinkClass('/home')"> Beranda </RouterLink>
+            <RouterLink to="/expenses" :class="getLinkClass('/expenses')">Pengeluaran</RouterLink>
+            <RouterLink
+              v-if="authStore.userRole === 'manager'"
+              to="/approvals"
+              :class="getLinkClass('/approvals')"
+            >
+              Persetujuan
+            </RouterLink>
           </div>
 
           <div class="ml-auto pl-4">

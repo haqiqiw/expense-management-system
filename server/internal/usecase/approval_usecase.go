@@ -5,8 +5,10 @@ import (
 	"expense-management-system/internal/db"
 	"expense-management-system/internal/entity"
 	"expense-management-system/internal/messaging"
+	"expense-management-system/internal/metrics"
 	"expense-management-system/internal/model"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -63,15 +65,24 @@ func (c *approvalUsecase) updateApproval(ctx context.Context, req *model.Approva
 		if expense.Status != entity.ExpenseStatusAwaitingApproval {
 			return model.ErrExpenseAlreadyProcessed
 		}
+		if !expense.RequiresApproval() {
+			return model.ErrExpenseNotRequireApproval
+		}
 
 		idemKey = expense.GetKey()
 		expAmount = expense.Amount
+
+		var notes *string
+		if req.Notes != nil {
+			n := strings.TrimSpace(*req.Notes)
+			notes = &n
+		}
 
 		approval := &entity.Approval{
 			ExpenseID:  req.ID,
 			ApproverID: req.UserID,
 			Status:     approvalStatus,
-			Notes:      req.Notes,
+			Notes:      notes,
 		}
 		txErr = c.approvalRepository.CreateTx(ctx, exec, approval)
 		if txErr != nil {
@@ -98,23 +109,28 @@ func (c *approvalUsecase) updateApproval(ctx context.Context, req *model.Approva
 	}
 
 	if approvalStatus == entity.ApprovalStatusApproved {
-		// publish after commit to avoid event emitted but underlying DB change never committed
-		// if publish fails, just log, since the DB is already committed
-		// in a real system, we can handle this with outbox pattern or retry mechanism
 		event := model.ExpenseApprovedEvent{
 			ID:             req.ID,
 			UserID:         req.UserID,
 			Amount:         expAmount,
 			IdempotencyKey: idemKey,
 		}
+
+		// publish after the expense is successfully updated
+		// if publishing fails, log the error and send a metric to notify us
+		// later, we can run a script to retry sending failed events
+		// a more robust solution would be to use the outbox pattern
+		eventStatus := "success"
 		err = c.expenseApprovedProducer.Send(&event)
 		if err != nil {
+			eventStatus = "fail"
 			c.log.Error(
 				fmt.Sprintf("failed to send expense-approved event for id (%d) = %s", event.ID, err.Error()),
 				zap.Any("event", event),
 				zap.Strings("tags", []string{"approval", "update", "send-event", "expense-approved"}),
 			)
 		}
+		metrics.IncrementEvent(metrics.EventPusblishExpenseApprove, eventStatus)
 	}
 
 	return nil

@@ -8,17 +8,21 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
 
 type ApprovalController struct {
 	log             *zap.Logger
+	validate        *validator.Validate
 	approvalUsecase usecase.ApprovalUsecase
 }
 
-func NewApprovalController(log *zap.Logger, approvalUsecase usecase.ApprovalUsecase) *ApprovalController {
+func NewApprovalController(log *zap.Logger, validate *validator.Validate,
+	approvalUsecase usecase.ApprovalUsecase) *ApprovalController {
 	return &ApprovalController{
 		log:             log,
+		validate:        validate,
 		approvalUsecase: approvalUsecase,
 	}
 }
@@ -54,6 +58,12 @@ func (c *ApprovalController) Approve(ctx *gin.Context) {
 			ctx.Error(model.ErrBadRequest)
 			return
 		}
+	}
+
+	err = c.validate.Struct(request)
+	if err != nil {
+		ctx.Error(err)
+		return
 	}
 
 	request.ID = id
@@ -103,6 +113,12 @@ func (c *ApprovalController) Reject(ctx *gin.Context) {
 			ctx.Error(model.ErrBadRequest)
 			return
 		}
+	}
+
+	err = c.validate.Struct(request)
+	if err != nil {
+		ctx.Error(err)
+		return
 	}
 
 	request.ID = id

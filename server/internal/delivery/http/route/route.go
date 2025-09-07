@@ -3,15 +3,11 @@ package route
 import (
 	"embed"
 	internalHttp "expense-management-system/internal/delivery/http"
-	"expense-management-system/internal/delivery/http/middleware"
-	"expense-management-system/internal/metrics"
 	"io/fs"
 	"net/http"
 
-	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.uber.org/zap"
 )
 
 //go:embed embeds/openapi.json
@@ -21,8 +17,8 @@ var swaggerJSON []byte
 var swaggerUI embed.FS
 
 type RouteConfig struct {
-	Logger             *zap.Logger
 	App                *gin.Engine
+	CommonMiddlewares  []gin.HandlerFunc
 	AuthMiddlware      gin.HandlerFunc
 	AuthController     *internalHttp.AuthController
 	UserController     *internalHttp.UserController
@@ -32,14 +28,9 @@ type RouteConfig struct {
 }
 
 func (c *RouteConfig) Setup() {
-	metrics.Init()
-
-	c.App.Use(requestid.New())
-	c.App.Use(metrics.Middleware())
-	c.App.Use(middleware.RequestLoggerMiddleware(c.Logger))
-	c.App.Use(middleware.RecoverMiddleware(c.Logger))
-	c.App.Use(middleware.ErrorMiddleware(c.Logger))
-	c.App.Use(middleware.CorsMiddleware(c.CorsAllowOrigins))
+	for _, m := range c.CommonMiddlewares {
+		c.App.Use(m)
+	}
 
 	SetupSwagger(c.App)
 

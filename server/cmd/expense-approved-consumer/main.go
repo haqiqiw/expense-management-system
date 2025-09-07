@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"expense-management-system/internal/config"
+	"expense-management-system/internal/db"
 	"expense-management-system/internal/delivery/messaging"
 	"expense-management-system/internal/httpclient"
 	"expense-management-system/internal/repository"
@@ -35,10 +36,11 @@ func main() {
 		logger.Fatal(fmt.Sprintf("failed to initialize env: %+v", err))
 	}
 
-	db, err := config.NewDatabase(ctx, env)
+	database, err := config.NewDatabase(ctx, env)
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("failed to initialize database: %+v", err))
 	}
+	tx := db.NewTransactioner(database)
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", env.RedisHost, env.RedistPort),
@@ -55,11 +57,12 @@ func main() {
 		time.Second*time.Duration(env.PaymentPartnerTimeout),
 	)
 
-	expenseRepository := repository.NewExpenseRepository(db)
+	expenseRepository := repository.NewExpenseRepository(database)
 	paymentPartnerRepository := repository.NewPaymentPartnerRepository(paymentPartnerClient)
 	paymentProcessorUsecase := usecase.NewPaymentProcessorUsecase(
 		logger,
 		redisClient,
+		tx,
 		expenseRepository,
 		paymentPartnerRepository,
 		env.PaymentLockDuration,

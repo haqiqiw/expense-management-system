@@ -37,6 +37,7 @@ func main() {
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("failed to initialize database: %+v", err))
 	}
+	tx := db.NewTransactioner(database)
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%s", env.RedisHost, env.RedistPort),
@@ -48,7 +49,6 @@ func main() {
 		logger.Fatal(fmt.Sprintf("failed to initialize producer: %+v", err))
 	}
 
-	tx := db.NewTransactioner(database)
 	validate := config.NewValidator()
 	app := config.NewGin(logger)
 

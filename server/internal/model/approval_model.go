@@ -2,7 +2,7 @@ package model
 
 type ApprovalExpenseRequest struct {
 	ID       uint64  `json:"id"`
-	Notes    *string `json:"notes"`
+	Notes    *string `json:"notes" validate:"omitempty,max=255"`
 	UserID   uint64  `json:"user_id"`   // current user id
 	UserRole string  `json:"user_role"` // current user role
 }

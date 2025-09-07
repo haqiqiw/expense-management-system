@@ -5,16 +5,14 @@ import (
 	"expense-management-system/internal/model"
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 )
 
-func RecoverMiddleware(logger *zap.Logger) gin.HandlerFunc {
+func NewRecoverMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -47,7 +45,7 @@ func RecoverMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-func ErrorMiddleware(logger *zap.Logger) gin.HandlerFunc {
+func NewErrorMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Next()
 
@@ -69,7 +67,6 @@ func ErrorMiddleware(logger *zap.Logger) gin.HandlerFunc {
 				resp.Meta.HTTPStatus = customErr.HTTPStatus
 
 				ctx.JSON(customErr.HTTPStatus, resp)
-				ctx.Status(customErr.HTTPStatus)
 				return
 			}
 
@@ -86,7 +83,6 @@ func ErrorMiddleware(logger *zap.Logger) gin.HandlerFunc {
 				resp.Meta.HTTPStatus = http.StatusBadRequest
 
 				ctx.JSON(http.StatusBadRequest, resp)
-				ctx.Status(http.StatusBadRequest)
 				return
 			}
 
@@ -94,36 +90,6 @@ func ErrorMiddleware(logger *zap.Logger) gin.HandlerFunc {
 			resp.Meta.HTTPStatus = model.ErrInternalServerError.HTTPStatus
 
 			ctx.JSON(http.StatusInternalServerError, resp)
-			ctx.Status(http.StatusInternalServerError)
 		}
 	}
-}
-
-func RequestLoggerMiddleware(logger *zap.Logger) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		start := time.Now()
-		ctx.Next()
-
-		logger.Info("request finished",
-			zap.Any("request_id", requestid.Get(ctx)),
-			zap.Any("path", ctx.Request.RequestURI),
-			zap.Any("method", ctx.Request.Method),
-			zap.Any("status", ctx.Writer.Status()),
-			zap.Any("path", ctx.Request.RequestURI),
-			zap.Duration("duration", time.Since(start)),
-		)
-	}
-}
-
-func CorsMiddleware(origins []string) gin.HandlerFunc {
-	config := cors.Config{
-		AllowOrigins:     origins,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}
-
-	return cors.New(config)
 }

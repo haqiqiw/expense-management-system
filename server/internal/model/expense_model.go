@@ -9,9 +9,9 @@ const (
 
 type CreateExpenseRequest struct {
 	UserID      uint64  `json:"user_id"` // current user id
-	AmountIDR   uint64  `json:"amount_idr" validate:"required,number"`
-	Description string  `json:"description" validate:"required"`
-	ReceiptURL  *string `json:"receipt_url"`
+	AmountIDR   uint64  `json:"amount_idr" validate:"required,number,gt=0"`
+	Description string  `json:"description" validate:"required,max=255"`
+	ReceiptURL  *string `json:"receipt_url" validate:"omitempty,url"`
 }
 
 type ListExpenseRequest struct {
