@@ -71,7 +71,9 @@
             />
           </div>
           <div v-else>
-            <p class="text-sm text-gray-500">Tidak ada struk/nota yang dilampirkan.</p>
+            <p id="receipt-empty" class="text-sm text-gray-500">
+              Tidak ada struk/nota yang dilampirkan.
+            </p>
           </div>
         </div>
       </div>
@@ -80,6 +82,7 @@
         <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
           <h3 class="text-lg leading-6 font-medium text-gray-900">Persetujuan</h3>
           <button
+            id="btn-approval"
             v-if="showApprovalAction"
             @click="isApprovalModalOpen = true"
             type="button"
@@ -90,7 +93,7 @@
         </div>
         <div class="border-t border-gray-200">
           <div v-if="showApprovalNotes" class="px-4 pt-4">
-            <p class="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md">
+            <p id="approval-warning" class="text-sm text-yellow-600 bg-yellow-50 p-2 rounded-md">
               Pengeluaran dengan nominal &lt; Rp 1.000.000 tidak membutuhkan persetujuan dari
               manager dan disetujui secara otomatis oleh sistem.
             </p>
@@ -185,4 +188,6 @@ const fetchExpenseDetails = async () => {
     }
   }
 }
+
+defineExpose({ isApprovalModalOpen })
 </script>

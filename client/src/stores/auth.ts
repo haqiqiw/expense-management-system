@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
 
         await this.fetchUser()
       } catch (error) {
-        this.logout()
+        this.clearUser()
         console.error('Login failed:', error)
         throw error
       }
@@ -49,7 +49,6 @@ export const useAuthStore = defineStore('auth', {
         this.user = user
         localStorage.setItem('user', JSON.stringify(user))
       } catch (error) {
-        this.logout()
         console.error('Failed to fetch user:', error)
         throw error
       }

@@ -4,6 +4,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6">
       <div class="flex items-center mt-4 sm:mt-0 space-4">
         <select
+          id="select-filter"
           v-model="selectedFilter"
           @change="applyFilter"
           class="block w-full py-2 pl-3 pr-10 text-base bg-grey-600 border-gray-300 rounded-md focus:outline-none sm:text-sm border border-gray-300"
@@ -16,6 +17,7 @@
         </select>
       </div>
       <button
+        id="btn-add"
         @click="isModalOpen = true"
         type="button"
         class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
@@ -137,6 +139,7 @@
       </div>
       <div class="flex space-x-2">
         <button
+          id="btn-prev"
           @click="changePage(currentPage - 1)"
           :disabled="currentPage === 1 || totalPages < 1"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
@@ -144,6 +147,7 @@
           Sebelumnya
         </button>
         <button
+          id="btn-next"
           @click="changePage(currentPage + 1)"
           :disabled="currentPage === totalPages || totalPages < 1"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
@@ -198,4 +202,6 @@ const changePage = (page: number) => {
     expenseStore.setPage(page)
   }
 }
+
+defineExpose({ isModalOpen })
 </script>

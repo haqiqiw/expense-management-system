@@ -117,6 +117,7 @@
       </div>
       <div class="flex space-x-2">
         <button
+          id="btn-prev"
           @click="changePage(currentPage - 1)"
           :disabled="currentPage === 1 || totalPages < 1"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
@@ -124,6 +125,7 @@
           Sebelumnya
         </button>
         <button
+          id="btn-next"
           @click="changePage(currentPage + 1)"
           :disabled="currentPage === totalPages || totalPages < 1"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
