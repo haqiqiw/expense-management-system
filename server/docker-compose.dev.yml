@@ -46,8 +46,26 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_LOG_RETENTION_HOURS: 168
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
       - kafka-data:/var/lib/kafka/data
+
+  kafka-setup:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: em-kafka-setup
+    depends_on:
+      - kafka
+    command: >
+      bash -c 
+      "
+        echo 'Waiting for Kafka to be ready...'
+        cub kafka-ready -b kafka:29092 1 60
+        
+        echo 'Creating Kafka topics...'
+        kafka-topics --create --topic expense-approved --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092
+
+        echo 'Topics created successfully.'
+      "
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest

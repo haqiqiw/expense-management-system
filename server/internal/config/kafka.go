@@ -9,7 +9,8 @@ import (
 
 func NewKafkaProducer(env *Env, logger *zap.Logger) (*kafka.Producer, error) {
 	cfg := &kafka.ConfigMap{
-		"bootstrap.servers": env.KafkaBrokerHost,
+		"bootstrap.servers":        env.KafkaBrokerHost,
+		"allow.auto.create.topics": true,
 	}
 
 	producer, err := kafka.NewProducer(cfg)
@@ -22,9 +23,10 @@ func NewKafkaProducer(env *Env, logger *zap.Logger) (*kafka.Producer, error) {
 
 func NewKafkaConsumer(env *Env, logger *zap.Logger) (*kafka.Consumer, error) {
 	cfg := &kafka.ConfigMap{
-		"bootstrap.servers": env.KafkaBrokerHost,
-		"group.id":          env.KafkaConsumerGroup,
-		"auto.offset.reset": env.KafkaAutoOffsetReset,
+		"bootstrap.servers":        env.KafkaBrokerHost,
+		"group.id":                 env.KafkaConsumerGroup,
+		"auto.offset.reset":        env.KafkaAutoOffsetReset,
+		"allow.auto.create.topics": true,
 	}
 
 	consumer, err := kafka.NewConsumer(cfg)
