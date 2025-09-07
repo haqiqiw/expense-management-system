@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"expense-management-system/internal/config"
 	internalHttp "expense-management-system/internal/delivery/http"
 	"expense-management-system/internal/mocks"
 	"expense-management-system/internal/model"
@@ -109,7 +108,7 @@ func (s *ExpenseControllerSuite) TestExpenseController_Create() {
 
 			ec := internalHttp.NewExpenseController(s.log, s.validate, eu)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.POST("/api/expenses", ec.Create)
 
@@ -182,7 +181,7 @@ func (s *ExpenseControllerSuite) TestExpenseController_List() {
 
 			ec := internalHttp.NewExpenseController(s.log, s.validate, eu)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.GET("/api/expenses", ec.List)
 
@@ -262,7 +261,7 @@ func (s *ExpenseControllerSuite) TestExpenseController_Get() {
 
 			ec := internalHttp.NewExpenseController(s.log, s.validate, eu)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.GET("/api/expenses/:id", ec.Get)
 

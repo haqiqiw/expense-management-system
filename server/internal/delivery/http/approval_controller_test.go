@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"expense-management-system/internal/config"
 	internalHttp "expense-management-system/internal/delivery/http"
 	"expense-management-system/internal/mocks"
 	"expense-management-system/internal/model"
@@ -88,7 +87,7 @@ func (s *ApprovalControllerSuite) TestApprovalController_Approve() {
 
 			ac := internalHttp.NewApprovalController(s.log, au)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.PUT("/expenses/:id/approve", ac.Approve)
 
@@ -162,7 +161,7 @@ func (s *ApprovalControllerSuite) TestApprovalController_Reject() {
 
 			ac := internalHttp.NewApprovalController(s.log, au)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.PUT("/expenses/:id/reject", ac.Reject)
 

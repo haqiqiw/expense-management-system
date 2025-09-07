@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"expense-management-system/internal/config"
 	internalHttp "expense-management-system/internal/delivery/http"
 	"expense-management-system/internal/mocks"
 	"expense-management-system/internal/model"
@@ -118,7 +117,7 @@ func (s *AuthControllerSuite) TestAuthController_Login() {
 
 			ac := internalHttp.NewAuthController(s.log, s.validate, au)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.POST("/api/auth/login", ac.Login)
 
 			reqBody, _ := json.Marshal(tt.body)
@@ -167,7 +166,7 @@ func (s *AuthControllerSuite) TestAuthController_Logout() {
 
 			ac := internalHttp.NewAuthController(s.log, s.validate, au)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(test.NewAuthMiddleware(1, "manager"))
 			app.POST("/api/auth/logout", ac.Logout)
 

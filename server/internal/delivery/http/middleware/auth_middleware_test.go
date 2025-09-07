@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"expense-management-system/internal/auth"
-	"expense-management-system/internal/config"
 	"expense-management-system/internal/delivery/http/middleware"
 	"expense-management-system/internal/mocks"
 	"expense-management-system/internal/model"
+	"expense-management-system/test"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -119,7 +119,7 @@ func (s *AuthMiddlewareSuite) TestAuthMiddleware_Handler() {
 
 			authMw := middleware.NewAuthMiddleware(s.log, rc, jwt)
 
-			app := config.NewGin(s.log)
+			app := test.NewApi(s.log)
 			app.Use(authMw)
 			app.GET("/", func(ctx *gin.Context) {
 				claims, err := middleware.GetJWTClaims(ctx)
