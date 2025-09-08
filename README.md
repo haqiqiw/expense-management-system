@@ -49,6 +49,12 @@ Go to `server/` directory:
 cd server/
 ```
 
+Copy the sample environment file:
+
+```bash
+cp env.sample .env
+```
+
 Run database migration:
 
 ```bash
@@ -70,6 +76,13 @@ go run dev/seeder/main.go
 - Web: http://localhost:5173/
 - API: http://localhost:8500/
 - Swagger UI: http://localhost:8500/swagger/
+
+<details>
+<summary>Web preview</summary>
+
+![Expense List](/docs/expense-sample.png)
+
+</details>
 
 ## Development
 
