@@ -4,9 +4,10 @@ This directory contains frontend for Expense Management System.
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed on your machine:
+Before running the project locally, make sure you have the following installed:
 
-- [Node.js](https://nodejs.org/id) (version 20.19.4 or later)
+- [Node.js](https://nodejs.org/) (version 20.19.4 or later)
+- [NPM](https://nodejs.org/) (version 10.8.2 or later)
 
 ## Development Setup
 

@@ -8,11 +8,20 @@ An expense management system where employee can submit expenses, manager can app
 
 ### Prerequisites
 
+Before running the project locally, make sure you have the following installed:
+
 - [Git](https://git-scm.com/)
 - [Go](https://go.dev/) (version 1.24.3 or later)
-- [Node.js](https://nodejs.org/id) (version 20.19.4 or later)
+- [Node.js](https://nodejs.org/) (version 20.19.4 or later)
+- [NPM](https://nodejs.org/) (version 10.8.2 or later)
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
+- [golang-migrate](https://github.com/golang-migrate/migrate) – follow installation instructions: https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
+
+Optional tools for development and debugging:
+
+- **PostgreSQL client** (`psql`) or GUI tools (e.g., [DBeaver](https://dbeaver.io/)) for inspecting database, running queries, and checking migrations
+- **Redis client** (`redis-cli`) – for inspecting keys and debugging
 
 ### Installation & Running the App
 
@@ -90,17 +99,23 @@ Receipt upload is mocked. If a user chooses an image, it’s temporarily stored 
 
 I’d make the approval flow more realistic by connecting employees to specific managers. That way, expenses could only be approved by the manager who the employee reports to, and managers’ expenses would need approval from their upper managers.
 
+We could have a `user_reporting_lines` table that maps each employee to their manager and a manager to their upper manager.
+
 ### Payment Records for Audit
 
 I’d record every payment attempt for each expense. This would give us proof of what was attempted, what the partner returned, and help troubleshoot errors when payments fail.
 
-### Dead Letter Queue for Failed Events
-
-I’d add a separate queue for events that fail, like invalid data or messages exceeding retry limits. Right now, failed events just stop retrying after a limit, which might lose important information.
+We could create an `expense_payment_attempts` table that records each payment attempt for an expense. It would store the partner ID returned by the API, the response, and the status. This way, we can track failures, and have an audit trail for all payment interactions.
 
 ### Notifications
 
 I’d implement notifications to alert managers about submitted expenses. If an expense is submitted outside business hours, the notification could wait until business hours. I’d also allow employees to manually trigger reminder notifications to managers.
+
+We could create an `expense_notifications` table that records each notification to be sent. It would include the recipient, related expense ID, and status (e.g., pending, sent, failed). A cron job would periodically check this table to send pending notifications
+
+### Dead Letter Queue for Failed Events
+
+I’d add a separate queue for events that fail, like invalid data or messages exceeding retry limits. Right now, failed events just stop retrying after a limit, which might lose important information.
 
 ### Refresh Token Mechanism
 

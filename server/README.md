@@ -4,10 +4,17 @@ This directory contains backend for Expense Management System.
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed on your machine:
+Before running the project locally, make sure you have the following installed:
 
 - [Go](https://go.dev/) (version 1.24.3 or later)
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [golang-migrate](https://github.com/golang-migrate/migrate) – follow installation instructions: https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
+
+Optional tools for development and debugging:
+
+- **PostgreSQL client** (`psql`) or GUI tools (e.g., [DBeaver](https://dbeaver.io/)) for inspecting database, running queries, and checking migrations
+- **Redis client** (`redis-cli`) – for inspecting keys and debugging
 
 ## Development Setup
 
