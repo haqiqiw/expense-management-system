@@ -60,7 +60,7 @@ func main() {
 		{ID: 1, Email: "john@mail.com", Name: "John", PasswordHash: "$2a$10$AVS.3jUpmFXCEgcN8J4Peerq4643.KOMYIhUk8pAgny06t/zxNqHm", Role: "manager", CreatedAt: time.Date(2025, 9, 1, 13, 2, 30, 000, time.UTC)},
 		{ID: 2, Email: "wawan@mail.com", Name: "Wawan", PasswordHash: "$2a$10$KOIpI26eF/WTIE8s8GV56OCo6qK/GOHaIppLcNX8elxXnuUekOw82", Role: "manager", CreatedAt: time.Date(2025, 9, 1, 13, 3, 30, 000, time.UTC)},
 		{ID: 3, Email: "budi@mail.com", Name: "Budi", PasswordHash: "$2a$10$ZnT7RBH14iLQXsQGN1Z99O7lASuaJYYiIZcyCpyj9oC8w6m7..Wxu", Role: "employee", CreatedAt: time.Date(2025, 9, 2, 13, 4, 30, 000, time.UTC)},
-		{ID: 4, Email: "lala@mail.com", Name: "Lala", PasswordHash: "$2a$10$UFBubu4rYw7.ZvVd9rq75Otj12ppjaVOJO/VTBjyc0wkP.fhfBBsO", Role: "manager", CreatedAt: time.Date(2025, 9, 2, 13, 5, 30, 000, time.UTC)},
+		{ID: 4, Email: "lala@mail.com", Name: "Lala", PasswordHash: "$2a$10$UFBubu4rYw7.ZvVd9rq75Otj12ppjaVOJO/VTBjyc0wkP.fhfBBsO", Role: "employee", CreatedAt: time.Date(2025, 9, 2, 13, 5, 30, 000, time.UTC)},
 	}
 	expenses = []entity.Expense{
 		{ID: 1, UserID: 3, Amount: 150000, Description: "Snacks", ReceiptURL: &defaultReceiptURL, Status: entity.ExpenseStatusCompleted, CreatedAt: time.Date(2025, 8, 2, 13, 2, 30, 000, time.UTC)},

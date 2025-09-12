@@ -13,9 +13,9 @@ func NewApi(logger *zap.Logger) *gin.Engine {
 	app := config.NewGin(logger)
 
 	app.Use(requestid.New())
-	app.Use(middleware.RequestLoggerMiddleware(logger))
-	app.Use(middleware.RecoverMiddleware(logger))
-	app.Use(middleware.ErrorMiddleware(logger))
+	app.Use(middleware.NewRequestLoggerMiddleware(logger))
+	app.Use(middleware.NewRecoverMiddleware(logger))
+	app.Use(middleware.NewErrorMiddleware(logger))
 
 	return app
 }
